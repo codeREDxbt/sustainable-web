@@ -258,20 +258,33 @@ async function finishQuiz() {
             maxScore: QUIZ_DATA.length * 5,
             department: userDepartment
         },
-        createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
+        createdAt: window.firebase.firestore.FieldValue.serverTimestamp(),
+        timestamp: window.firebase.firestore.FieldValue.serverTimestamp() // Double field for compatibility
     };
 
     try {
         if (!window.db) throw new Error('Database not initialized');
-        await window.db.collection('pledges').add(submissionData);
+
+        // Race Condition: 10s Timeout for better UX
+        const timeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Submission timed out. Please check your internet connection or try again.')), 10000)
+        );
+
+        await Promise.race([
+            window.db.collection('pledges').add(submissionData),
+            timeout
+        ]);
 
         if (loadingOverlay) loadingOverlay.style.display = 'none';
         showSuccessScreen(currentScore, QUIZ_DATA.length * 5);
 
     } catch (error) {
-        console.error('Submission error:', error);
+        console.error('Submission error full:', error);
+        console.log('Submission Payload:', submissionData);
         if (loadingOverlay) loadingOverlay.style.display = 'none';
-        showErrorToast('Failed to save score. Please try again.');
+
+        const errorMsg = `Error: ${error.code || 'Unknown'} - ${error.message || error}`;
+        showErrorToast(errorMsg);
         isSubmitting = false;
     }
 }
