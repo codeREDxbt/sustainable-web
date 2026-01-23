@@ -4,6 +4,7 @@
    ============================================ */
 
 import { showToast, escapeHtml } from './ui.js';
+window.showToast = showToast; // Expose for HTML inline onclick
 
 // DOM Elements
 const elements = {

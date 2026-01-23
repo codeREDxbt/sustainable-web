@@ -161,12 +161,13 @@
                     <span class="text-xl">📊</span>
                     <span class="text-sm font-medium">View Stats</span>
                 </a>
-                <button onclick="alert('Coming soon!')"
+                <button onclick="window.showToast('Event calendar coming soon!', 'info')"
                     class="card p-4 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-center h-24">
                     <span class="text-xl">📅</span>
                     <span class="text-sm font-medium">Events</span>
                 </button>
-                <button onclick="alert('Coming soon!')"
+                <button
+                    onclick="window.db.collection('pledges').add({ userId: firebase.auth().currentUser.uid, volunteer: 'Yes', timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => window.showToast('Thanks for volunteering!', 'success'))"
                     class="card p-4 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-center h-24">
                     <span class="text-xl">🤝</span>
                     <span class="text-sm font-medium">Volunteer</span>
