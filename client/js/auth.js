@@ -59,6 +59,9 @@ export const auth = {
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
+            // Set Session Flag
+            localStorage.setItem('krmu_session', 'true');
+
             return { success: true, user: user };
         } catch (error) {
             console.error('Sign Up Error:', error);
@@ -71,6 +74,8 @@ export const auth = {
         const firebase = await waitForFirebase();
         try {
             const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+            // Set Session Flag
+            localStorage.setItem('krmu_session', 'true');
             return { success: true, user: userCredential.user };
         } catch (error) {
             console.error('Sign In Error:', error);
@@ -83,6 +88,8 @@ export const auth = {
         const firebase = await waitForFirebase();
         try {
             await firebase.auth().signOut();
+            // Clear Session Flag
+            localStorage.removeItem('krmu_session');
             return { success: true };
         } catch (error) {
             console.error('Sign Out Error:', error);
@@ -105,6 +112,14 @@ export const auth = {
     // Auth State Listener
     async onAuthStateChanged(callback) {
         const firebase = await waitForFirebase();
-        return firebase.auth().onAuthStateChanged(callback);
+        return firebase.auth().onAuthStateChanged((user) => {
+            // Sync local flag with actual Firebase state
+            if (user) {
+                localStorage.setItem('krmu_session', 'true');
+            } else {
+                localStorage.removeItem('krmu_session');
+            }
+            callback(user);
+        });
     }
 };

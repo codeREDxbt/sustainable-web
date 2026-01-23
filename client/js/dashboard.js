@@ -89,8 +89,8 @@ async function fetchStats() {
     // For this scale (< few thousand), client-side counting is acceptable.
 
     if (window.db) {
-        // PLEDGES LISTENER
-        window.db.collection('pledges').orderBy('timestamp', 'desc').onSnapshot(snap => {
+        // PLEDGES LISTENER - OPTIMIZED WITH LIMIT
+        window.db.collection('pledges').orderBy('timestamp', 'desc').limit(100).onSnapshot(snap => {
             const pledges = [];
             snap.forEach(doc => pledges.push({ id: doc.id, ...doc.data() }));
 
@@ -114,8 +114,9 @@ async function fetchStats() {
  * Calculate & Update Top Cards
  */
 function updateMetrics(pledges) {
-    // Total Impact
-    elements.totalImpact.textContent = pledges.length.toLocaleString();
+    // Total Impact (Approximate if limited)
+    // For real total with limit, use a separate counter document in production.
+    elements.totalImpact.textContent = (pledges.length >= 100 ? "100+" : pledges.length).toLocaleString();
 
     // Volunteers (Count where volunteer == "Yes")
     const volCount = pledges.filter(p => p.volunteer === 'Yes').length;
@@ -176,18 +177,30 @@ function updateLeaderboard(pledges) {
 function updateFeed(recentPledges) {
     if (recentPledges.length > 0) {
         elements.pledgeList.innerHTML = recentPledges.map(p => {
-            // Calculate time ago (simple approximation)
-            let timeAgo = 'Just now';
-            if (p.timestamp) {
-                const diff = Date.now() - p.timestamp.toDate().getTime();
-                const mins = Math.floor(diff / 60000);
-                if (mins > 60) timeAgo = `${Math.floor(mins / 60)} hrs ago`;
-                else if (mins > 0) timeAgo = `${mins} mins ago`;
+            // Calculate time ago using ui.js utility or fallback
+            let timeAgoText = 'Just now';
+            if (p.timestamp || p.createdAt) {
+                const ts = p.createdAt || p.timestamp;
+                try {
+                    const date = ts.toDate();
+                    const diff = Date.now() - date.getTime();
+                    const mins = Math.floor(diff / 60000);
+                    const hours = Math.floor(mins / 60);
+                    const days = Math.floor(hours / 24);
+
+                    if (days > 0) timeAgoText = `${days} day${days > 1 ? 's' : ''} ago`;
+                    else if (hours > 0) timeAgoText = `${hours} hr${hours > 1 ? 's' : ''} ago`;
+                    else if (mins > 0) timeAgoText = `${mins} min${mins > 1 ? 's' : ''} ago`;
+                } catch (e) {
+                    console.warn('Error parsing timestamp:', e);
+                }
             }
 
-            // Initials
-            const name = p.fullName || 'Anonymous';
+            // Get name with fallback
+            const name = p.userName || p.fullName || 'Anonymous';
             const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            const dept = p.department || 'General';
+            const score = p.score ?? 0;
 
             return `
             <div class="flex items-center gap-3 p-2 hover:bg-muted/10 rounded-md transition-colors animate-slideUp">
@@ -196,9 +209,9 @@ function updateFeed(recentPledges) {
                 </div>
                 <div class="flex-1">
                     <div class="text-sm font-medium">${escapeHtml(name)}</div>
-                    <div class="text-xs text-muted">${escapeHtml(p.department)} • Score: ${p.score}</div>
+                    <div class="text-xs text-muted">${escapeHtml(dept)} • Score: ${score}</div>
                 </div>
-                <div class="text-xs text-muted">${timeAgo}</div>
+                <div class="text-xs text-muted">${timeAgoText}</div>
             </div>
             `;
         }).join('');
@@ -218,6 +231,9 @@ function updateUI(stats) {
 if (elements.logoutBtn) {
     elements.logoutBtn.addEventListener('click', async () => {
         try {
+            // Immediate optimistic cleanup
+            localStorage.removeItem('krmu_session');
+
             if (window.authDB) {
                 await window.authDB.signOut();
             } else if (window.firebase && window.firebase.auth) {

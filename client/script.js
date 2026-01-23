@@ -1,6 +1,6 @@
-/* script.js - 3D ANIMATED FLASHCARD EDITION */
+/* script.js - LIQUID GLASS EDITION */
 
-// HTML Sanitization Helper - Prevents XSS attacks
+// HTML Sanitization Helper
 function escapeHtml(text) {
     if (text === null || text === undefined) return '';
     const div = document.createElement('div');
@@ -10,7 +10,6 @@ function escapeHtml(text) {
 
 window.addEventListener('firebase-ready', () => { initApp(); });
 
-// Added explanations based on your PDF content
 const QUIZ_DATA = [
     { q: "Agenda 2030 is regarded as the global treaty of the future because the 17 goals ensure that:", options: ["The world is becoming suitable for grandchildren", "Climate change is stopped", "People are living in peace"], ans: 0, exp: "The goals ensure resources are preserved so the world remains suitable for future generations (grandchildren)." },
     { q: "193 states have signed Agenda 2030. What about the other states (e.g., Kosovo)?", options: ["They are against it", "Their status is controversial/Not recognized by UN", "They don't want to join"], ans: 1, exp: "Some states like Kosovo have controversial status and are not recognized by the UN as independent states." },
@@ -38,114 +37,130 @@ let currentQuestionIndex = 0;
 let currentScore = 0;
 let currentUserRoll = "";
 let isLocked = false;
-
-function initApp() {
-    // Initialize quiz if on quiz page
-    if (document.getElementById('card-inner')) {
-        // Auth is handled by form.html script - wait for initQuiz call
-    }
-    // Initialize dashboard if on dashboard page  
-    if (document.getElementById('totalCount')) setupLiveDashboard();
-}
-
-// Called from form.html after auth check
-window.initQuiz = function (rollNumber) {
-    currentUserRoll = rollNumber;
-    loadQuestion(0);
-};
-
-// --- AUTH LOGIC (Already handled by auth.js) ---
-function setupAuthPage() {
-    // Legacy function, no longer used in new auth flow but kept for loop safety
-}
-
-// --- FLASHCARD QUIZ LOGIC ---
-// --- FLASHCARD QUIZ LOGIC ---
 let userDepartment = "";
 let userFullName = "";
 
+function initApp() {
+    // Only run if we are on the quiz page
+    if (document.getElementById('question-text')) {
+        // Setup initial UI states
+        const deptSelect = document.getElementById('departmentSelect');
+        if (deptSelect) {
+            setupDeptSelection();
+        }
+    }
+}
+
+// Called from form.html auth check
+window.initQuiz = function (rollNumber) {
+    currentUserRoll = rollNumber;
+    // Don't auto-load here if we want to ensure dept selection first.
+    // The loadQuestion(0) will check dept selection visibility.
+    loadQuestion(0);
+};
+
+// --- QUIZ LOGIC ---
+
+function setupDeptSelection() {
+    const select = document.getElementById('departmentSelect');
+    const btn = document.getElementById('startQuizBtn');
+
+    // Check initial state (browser refresh might keep value)
+    if (select.value) {
+        btn.disabled = false;
+    }
+
+    // Robust listener
+    select.addEventListener('change', () => {
+        if (select.value) btn.disabled = false;
+    });
+
+    // Start Button
+    btn.onclick = () => {
+        if (!select.value) return;
+
+        userDepartment = select.value;
+        const overlay = document.getElementById('dept-selection');
+
+        // Fetch user context
+        if (window.firebase?.auth && window.firebase.auth().currentUser) {
+            userFullName = window.firebase.auth().currentUser.displayName || "";
+        }
+
+        // Hide overlay with fade
+        overlay.style.transition = 'opacity 0.5s ease';
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 500);
+
+        // Ensure we load Q0 properly
+        loadQuestion(0);
+    };
+}
+
 function loadQuestion(index) {
-    // ... existing loadQuestion code ...
     if (index === 0 && !userDepartment) {
-        document.getElementById('dept-selection').style.display = 'flex';
-        setupDeptSelection();
-        return; // Wait for selection
+        const overlay = document.getElementById('dept-selection');
+        if (overlay) overlay.style.display = 'flex';
+        return;
     }
 
     const q = QUIZ_DATA[index];
-    const cardInner = document.getElementById('card-inner');
-
-    // Reset Card State
-    cardInner.classList.remove('flipped');
+    currentQuestionIndex = index;
     isLocked = false;
 
     // UI Updates
     document.getElementById('question-text').textContent = q.q;
-    document.getElementById('q-number').textContent = index + 1;
-    document.getElementById('correct-answer-display').textContent = "Correct Answer: " + q.options[q.ans];
+    document.getElementById('q-current').textContent = index + 1;
     document.getElementById('explanation-text').textContent = q.exp;
 
-    // Reset Buttons
-    document.getElementById('skipBtn').style.display = "block";
-    document.getElementById('flipBtn').style.display = "none";
-    document.getElementById('nextBtn').style.display = "none";
+    // Reset Insight Panel
+    const insightPanel = document.getElementById('insight-panel');
+    if (insightPanel) {
+        insightPanel.classList.remove('open');
+        insightPanel.style.maxHeight = '0';
+    }
+
+    // Reset Buttons/Actions
+    document.getElementById('viewExplBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'none';
+    document.getElementById('skipBtn').style.display = 'block';
 
     // Build Options
     const optsContainer = document.getElementById('options-container');
     optsContainer.innerHTML = '';
 
     q.options.forEach((opt, i) => {
-        const btn = document.createElement('div');
-        btn.className = 'quiz-option';
-        btn.style.padding = '15px';
-        btn.style.background = 'rgba(255,255,255,0.05)';
-        btn.style.border = '1px solid rgba(255,255,255,0.1)';
-        btn.style.borderRadius = '10px';
-        btn.style.cursor = 'pointer';
-        btn.style.color = 'white';
-        btn.style.textAlign = 'left';
-        btn.textContent = opt;
-
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerHTML = `<span>${String.fromCharCode(65 + i)}.</span> <span style="margin-left:8px">${opt}</span>`;
         btn.onclick = () => handleAnswer(i, index, btn);
         optsContainer.appendChild(btn);
     });
 
-    // Button Listeners
-    document.getElementById('skipBtn').onclick = () => handleAnswer(-1, index, null);
-
-    document.getElementById('flipBtn').onclick = () => {
-        cardInner.classList.toggle('flipped');
-    };
-
-    document.getElementById('flipBackBtn').onclick = () => {
-        cardInner.classList.remove('flipped');
-    };
-
-    document.getElementById('nextBtn').onclick = () => {
+    // Handle "Next" or "Submit" logic
+    const nextBtn = document.getElementById('nextBtn');
+    nextBtn.textContent = (index === QUIZ_DATA.length - 1) ? 'Submit Quiz' : 'Next';
+    nextBtn.onclick = () => {
         if (index < QUIZ_DATA.length - 1) loadQuestion(index + 1);
         else finishQuiz();
     };
+
+    // View Explanation Logic
+    document.getElementById('viewExplBtn').onclick = () => {
+        toggleExplanation();
+    };
+
+    // Skip Logic
+    document.getElementById('skipBtn').onclick = () => {
+        handleAnswer(-1, index, null);
+    };
 }
 
-function setupDeptSelection() {
-    const select = document.getElementById('departmentSelect');
-    const btn = document.getElementById('startQuizBtn');
-
-    select.addEventListener('change', () => {
-        if (select.value) btn.disabled = false;
-    });
-
-    btn.onclick = () => {
-        userDepartment = select.value;
-        document.getElementById('dept-selection').style.display = 'none';
-
-        // Fetch user name if available (from auth.js)
-        if (window.firebase && window.firebase.auth && window.firebase.auth().currentUser) {
-            userFullName = window.firebase.auth().currentUser.displayName || "";
-        }
-
-        loadQuestion(0);
-    };
+function toggleExplanation() {
+    const p = document.getElementById('insight-panel');
+    p.classList.toggle('open');
 }
 
 function handleAnswer(selectedIndex, qIndex, btn) {
@@ -154,92 +169,158 @@ function handleAnswer(selectedIndex, qIndex, btn) {
 
     const correctIndex = QUIZ_DATA[qIndex].ans;
     const opts = document.getElementById('options-container').children;
-    const toast = document.getElementById('toast');
 
-    // 1. Scoring Logic
+    // 1. Scoring & Styling
     if (selectedIndex === -1) {
         // SKIP
         showToast("Skipped (0)", "popup-skip");
-        // Highlight correct anyway
-        opts[correctIndex].classList.add('correct');
-    }
-    else if (selectedIndex === correctIndex) {
+        opts[correctIndex].classList.add('correct'); // Reveal correct
+    } else if (selectedIndex === correctIndex) {
         // CORRECT
         currentScore += 5;
         btn.classList.add('correct');
         showToast("Correct! +5", "popup-correct");
-    }
-    else {
+    } else {
         // WRONG
         currentScore -= 1;
         btn.classList.add('wrong');
-        btn.classList.add('shake');
-        opts[correctIndex].classList.add('correct'); // Show right answer
+        opts[correctIndex].classList.add('correct'); // Reveal correct
         showToast("Incorrect! -1", "popup-wrong");
     }
 
-    // 2. Update Score Display
+    // 2. Update Score UI
     document.getElementById('current-score').textContent = currentScore;
 
-    // 3. UI Changes
-    Array.from(opts).forEach(o => o.style.pointerEvents = 'none'); // Disable clicks
+    // 3. Disable all options
+    Array.from(opts).forEach(o => o.disabled = true);
+
+    // 4. Show Footer Actions
     document.getElementById('skipBtn').style.display = 'none';
-    document.getElementById('flipBtn').style.display = 'block';
     document.getElementById('nextBtn').style.display = 'block';
+
+    // Always allow viewing explanation after answer
+    document.getElementById('viewExplBtn').style.display = 'block';
 }
 
 function showToast(msg, className) {
     const toast = document.getElementById('toast');
+    if (!toast) return;
+
     toast.textContent = msg;
     toast.className = `popup-toast show ${className}`;
+
+    // Remove classes after animation to reset
     setTimeout(() => {
         toast.className = 'popup-toast';
-    }, 1500);
+    }, 2000);
 }
 
-function finishQuiz() {
-    const total = QUIZ_DATA.length * 5;
+// --- SUBMISSION LOGIC ---
 
-    // FIRESTORE SUBMISSION
-    const user = window.firebase.auth().currentUser;
-    const newData = {
-        userId: user ? user.uid : 'anon',
+let isSubmitting = false;
+
+async function finishQuiz() {
+    if (isSubmitting) return;
+    isSubmitting = true;
+
+    const user = window.firebase?.auth()?.currentUser;
+    if (!user) {
+        showErrorToast('You must be logged in to submit.');
+        isSubmitting = false;
+        return;
+    }
+
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+
+    const submissionData = {
+        userId: user.uid,
+        uid: user.uid,
         roll: currentUserRoll,
-        fullName: userFullName || user.displayName || currentUserRoll,
+        fullName: userFullName || user.displayName || "Anonymous",
         department: userDepartment || "General",
         score: currentScore,
-        totalQuizScore: total,
+        totalQuizScore: QUIZ_DATA.length * 5,
         pledge: `Final Score: ${currentScore}`,
-        volunteer: "Yes", // Defaulting for now as per previous logic
-        timestamp: window.firebase.firestore.FieldValue.serverTimestamp() // Server Time
+        status: 'submitted',
+        payload: {
+            questionsAnswered: QUIZ_DATA.length,
+            score: currentScore,
+            maxScore: QUIZ_DATA.length * 5,
+            department: userDepartment
+        },
+        createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    if (window.db) { // Firestore
-        window.db.collection('pledges').add(newData).then(() => {
-            alert(`Quiz Finished! Final Score: ${currentScore}`);
-            window.location.href = 'dashboard.html';
-        }).catch(err => {
-            console.error(err);
-            alert('Error saving score: ' + err.message);
-            window.location.href = 'dashboard.html';
-        });
-    } else {
-        console.error('Firestore not initialized');
-        alert('Database error. Score not saved.');
-        window.location.href = 'dashboard.html';
+    try {
+        if (!window.db) throw new Error('Database not initialized');
+        await window.db.collection('pledges').add(submissionData);
+
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        showSuccessScreen(currentScore, QUIZ_DATA.length * 5);
+
+    } catch (error) {
+        console.error('Submission error:', error);
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        showErrorToast('Failed to save score. Please try again.');
+        isSubmitting = false;
     }
 }
 
-// --- DASHBOARD LOGIC (Deprecated here, moved to dashboard.js) ---
-function setupLiveDashboard() {
-    // Moved to dashboard.js
+function showSuccessScreen(score, maxScore) {
+    const successScreen = document.getElementById('success-screen');
+    const finalScoreEl = document.getElementById('finalScore');
+    const maxScoreEl = document.getElementById('maxScore');
+    const retakeBtn = document.getElementById('retakeQuizBtn');
+
+    if (finalScoreEl) finalScoreEl.textContent = score;
+    if (maxScoreEl) maxScoreEl.textContent = maxScore;
+    if (successScreen) successScreen.style.display = 'flex';
+
+    if (retakeBtn) {
+        retakeBtn.onclick = resetQuiz;
+    }
 }
 
-// Use auth.js or firebase-init.js for logout now
+function resetQuiz() {
+    document.getElementById('success-screen').style.display = 'none';
+    currentQuestionIndex = 0;
+    currentScore = 0;
+    isSubmitting = false;
+    isLocked = false;
+    userDepartment = "";
+
+    document.getElementById('current-score').textContent = '0';
+
+    // Show Dept Selection Again
+    const overlay = document.getElementById('dept-selection');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.style.opacity = '1';
+    }
+    document.getElementById('departmentSelect').value = ""; // Reset dropdown
+    document.getElementById('startQuizBtn').disabled = true;
+
+    loadQuestion(0);
+}
+
+function showErrorToast(message) {
+    const errorToast = document.getElementById('error-toast');
+    if (errorToast) {
+        document.getElementById('error-message').textContent = message;
+        errorToast.style.display = 'block';
+        setTimeout(() => { errorToast.style.display = 'none'; }, 4000);
+    }
+}
+
+// Deprecated or Unused
+function setupAuthPage() { }
+function setupLiveDashboard() { } // Handled in dashboard.js
+
 window.logout = function () {
-    if (window.firebase && window.firebase.auth) {
+    if (window.firebase?.auth) {
         window.firebase.auth().signOut().then(() => window.location.href = 'index.html');
     } else {
         window.location.href = 'index.html';
     }
-}
+};

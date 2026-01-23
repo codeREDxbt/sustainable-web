@@ -1,12 +1,32 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Users collection - users can only read/write their own document
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+    
+    // Pledges/Submissions collection
     match /pledges/{pledgeId} {
+      // Anyone authenticated can read (for global leaderboard and feed)
       allow read: if request.auth != null;
-      allow create: if request.auth != null;
+      
+      // Create: Must be authenticated AND userId must match auth uid
+      // This prevents users from submitting pledges as someone else
+      allow create: if request.auth != null 
+                    && request.resource.data.userId == request.auth.uid;
+      
+      // No updates or deletes allowed - submissions are immutable
+      allow update, delete: if false;
+    }
+    
+    // Generic submissions collection (if used in future)
+    match /submissions/{submissionId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null 
+                    && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
     }
   }
 }
