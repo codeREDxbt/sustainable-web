@@ -40,6 +40,10 @@ const getErrorMessage = (error) => {
 export const auth = {
     // Sign Up
     async signUp(email, password, fullName) {
+        if (!email.toLowerCase().endsWith('@krmu.edu.in')) {
+            return { success: false, message: 'Registration restricted to @krmu.edu.in emails only.' };
+        }
+
         const firebase = await waitForFirebase();
         try {
             const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
@@ -71,6 +75,10 @@ export const auth = {
 
     // Sign In
     async signIn(email, password) {
+        if (!email.toLowerCase().endsWith('@krmu.edu.in')) {
+            return { success: false, message: 'Access restricted to @krmu.edu.in emails only.' };
+        }
+
         const firebase = await waitForFirebase();
         try {
             const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
