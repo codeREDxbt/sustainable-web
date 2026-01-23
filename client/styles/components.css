@@ -26,41 +26,23 @@
 }
 
 /* ---------- Card ---------- */
+/* Global Card Style - Liquid Glass Default */
 .card {
-    background-color: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border-color);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--glass-shadow-combined);
+
+    /* Glass effect */
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
+
     overflow: hidden;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Light theme cards use glass system */
-[data-theme="light"] .card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border-color);
-    box-shadow: var(--glass-shadow-combined);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
-    backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
-}
-
-[data-theme="light"] .card:not(.glass) {
-    /* Non-glass cards get stronger background */
-    background: var(--glass-bg-strong);
-}
-
-/* Light theme cards use glass system */
-[data-theme="light"] .card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border-color);
-    box-shadow: var(--glass-shadow-combined);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
-    backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
-}
-
-[data-theme="light"] .card:not(.glass) {
-    /* Non-glass cards get stronger background */
-    background: var(--glass-bg-strong);
-}
+/* Global inheritance handles cards for all themes now */
 
 .card__header {
     padding: var(--space-6);
