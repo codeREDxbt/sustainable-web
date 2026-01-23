@@ -54,57 +54,14 @@ window.initQuiz = function (rollNumber) {
     loadQuestion(0);
 };
 
-// --- AUTH LOGIC ---
+// --- AUTH LOGIC (Already handled by auth.js) ---
 function setupAuthPage() {
-    const toggle = document.getElementById('toggleAuth');
-    document.getElementById('toggleAuth').addEventListener('click', (e) => {
-        e.preventDefault();
-        isRegistering = !isRegistering;
-        const formTitle = document.getElementById('formTitle');
-        const submitBtn = document.getElementById('submitBtn');
-        const toggleText = document.getElementById('toggleText');
-
-        if (isRegistering) {
-            formTitle.textContent = "Student Register";
-            submitBtn.textContent = "Create Account";
-            toggleText.textContent = "Have account?";
-            toggle.textContent = "Login";
-        } else {
-            formTitle.textContent = "Student Login";
-            submitBtn.textContent = "Login";
-            toggleText.textContent = "New here?";
-            toggle.textContent = "Register";
-        }
-    });
-
-    document.getElementById('authForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const roll = document.getElementById('roll').value.trim();
-        const pass = document.getElementById('pass').value;
-
-        // Input validation - prevent injection and ensure proper format
-        if (!/^[a-zA-Z0-9]{5,15}$/.test(roll)) {
-            alert('Invalid roll number format. Use 5-15 alphanumeric characters only.');
-            return;
-        }
-        if (pass.length < 6) {
-            alert('Password must be at least 6 characters.');
-            return;
-        }
-
-        const email = `${roll}@krmu.edu.in`;
-
-        const p = isRegistering
-            ? window.createUserWithEmailAndPassword(window.auth, email, pass)
-            : window.signInWithEmailAndPassword(window.auth, email, pass);
-
-        p.then(() => window.location.href = 'form.html')
-            .catch(err => alert(err.message));
-    });
+    // Legacy function, no longer used in new auth flow but kept for loop safety
 }
 
 // --- FLASHCARD QUIZ LOGIC ---
 function loadQuestion(index) {
+    // ... existing loadQuestion code ...
     const q = QUIZ_DATA[index];
     const cardInner = document.getElementById('card-inner');
 
@@ -221,21 +178,38 @@ function finishQuiz() {
         timestamp: new Date().toISOString()
     };
 
-    window.dbPush(window.dbRef(window.db, 'submissions'), newData).then(() => {
-        alert(`Quiz Finished! Final Score: ${currentScore}`);
+    // COMPAT SDK: window.rtdb.ref().push()
+    if (window.rtdb) {
+        window.rtdb.ref('submissions').push(newData).then(() => {
+            alert(`Quiz Finished! Final Score: ${currentScore}`);
+            window.location.href = 'dashboard.html';
+        }).catch(err => {
+            console.error(err);
+            alert('Error saving score: ' + err.message);
+        });
+    } else {
+        console.error('Firebase RTDB not initialized');
+        alert('Database error. Score not saved.');
         window.location.href = 'dashboard.html';
-    });
+    }
 }
 
 // --- DASHBOARD LOGIC (Minimal) ---
 function setupLiveDashboard() {
-    window.dbOnValue(window.dbRef(window.db, 'submissions'), (snap) => {
+    if (!window.rtdb) return;
+
+    // COMPAT SDK
+    window.rtdb.ref('submissions').on('value', (snap) => {
         const data = snap.val() ? Object.values(snap.val()) : [];
-        document.getElementById('totalCount').textContent = data.length;
+        const totalCount = document.getElementById('totalCount');
+        if (totalCount) totalCount.textContent = data.length;
+
         if (data.length) {
             const sum = data.reduce((a, b) => a + parseInt(b.score || 0), 0);
-            document.getElementById('avgScore').textContent = Math.round(sum / data.length);
+            const avgScore = document.getElementById('avgScore');
+            if (avgScore) avgScore.textContent = Math.round(sum / data.length);
         }
+
         const list = document.getElementById('pledgeList');
         if (list && data.length) {
             list.innerHTML = data.slice().reverse().map(d => `
@@ -246,4 +220,11 @@ function setupLiveDashboard() {
     });
 }
 
-window.logout = function () { window.signOut(window.auth).then(() => window.location.href = 'index.html'); }
+// Use auth.js or firebase-init.js for logout now
+window.logout = function () {
+    if (window.firebase && window.firebase.auth) {
+        window.firebase.auth().signOut().then(() => window.location.href = 'index.html');
+    } else {
+        window.location.href = 'index.html';
+    }
+}

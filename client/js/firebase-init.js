@@ -22,6 +22,7 @@ if (typeof firebase !== 'undefined') {
             // Expose services globally
             window.authDB = firebase.auth();
             window.db = firebase.firestore();
+            window.rtdb = firebase.database();
             console.log('🔥 Firebase initialized');
         } catch (e) {
             console.error('Firebase init error:', e);
