@@ -39,11 +39,27 @@ const getErrorMessage = (error) => {
 
 export const auth = {
     // Sign Up
-    async signUp(email, password) {
+    async signUp(email, password, fullName) {
         const firebase = await waitForFirebase();
         try {
             const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-            return { success: true, user: userCredential.user };
+            const user = userCredential.user;
+
+            // 1. Update Auth Profile
+            await user.updateProfile({
+                displayName: fullName
+            });
+
+            // 2. Create User Document in Firestore
+            const db = firebase.firestore();
+            await db.collection('users').doc(user.uid).set({
+                fullName: fullName,
+                email: email,
+                role: 'student',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            return { success: true, user: user };
         } catch (error) {
             console.error('Sign Up Error:', error);
             return { success: false, message: getErrorMessage(error) };

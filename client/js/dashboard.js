@@ -74,52 +74,92 @@ function fetchUser() {
     });
 }
 
+const DEPARTMENTS = [
+    'Computer Science', 'Law', 'Management', 'Engineering', 'Medical',
+    'Fashion', 'Journalism', 'Basic Sciences', 'Architecture', 'Education', 'Other'
+];
+
 /**
- * Fetch Stats (Mocked or Real)
- * TODO: Connect to real stats endpoint once created
+ * Fetch Stats (Real-time Firestore)
  */
 async function fetchStats() {
-    // Simulate network delay for skeleton effect
-    await new Promise(r => setTimeout(r, 800));
+    // 1. Listen to Pledges Collection
+    // Note: For large scale, we would use distributed counters. 
+    // For this scale (< few thousand), client-side counting is acceptable.
 
-    // MOCK DATA (Replace with API call later)
-    const stats = {
-        totalImpact: 1245,
-        volunteers: 86,
-        myScore: 42,
-        topDepts: [
-            { rank: 1, name: 'Computer Science', score: 8540 },
-            { rank: 2, name: 'Law', score: 6200 },
-            { rank: 3, name: 'Management', score: 5150 },
-            { rank: 4, name: 'Engineering', score: 4800 },
-            { rank: 5, name: 'Medical', score: 3200 },
-        ],
-        recentPledges: [
-            { name: 'Rahul Sharma', action: 'Planted a tree', time: '2 mins ago', avatar: 'RS' },
-            { name: 'Priya Singh', action: 'Recycled e-waste', time: '15 mins ago', avatar: 'PS' },
-            { name: 'Amit Kumar', action: 'Volunteered for cleanup', time: '1 hour ago', avatar: 'AK' },
-            { name: 'Sneha Gupta', action: 'Reduced plastic use', time: '3 hours ago', avatar: 'SG' },
-        ]
-    };
+    if (window.db) {
+        // PLEDGES LISTENER
+        window.db.collection('pledges').orderBy('timestamp', 'desc').onSnapshot(snap => {
+            const pledges = [];
+            snap.forEach(doc => pledges.push({ id: doc.id, ...doc.data() }));
 
-    // Update UI
-    updateUI(stats);
+            // Update Metrics
+            updateMetrics(pledges);
+
+            // Update Leaderboard
+            updateLeaderboard(pledges);
+
+            // Update Feed
+            updateFeed(pledges.slice(0, 5)); // Recent 5
+
+        }, err => console.error('Stats listener failed:', err));
+
+    } else {
+        console.error('Firestore not initialized');
+    }
 }
 
 /**
- * Update DOM elements with data
+ * Calculate & Update Top Cards
  */
-function updateUI(stats) {
-    // Top cards
-    elements.totalImpact.textContent = stats.totalImpact.toLocaleString();
-    elements.volunteerCount.textContent = stats.volunteers;
-    elements.myScore.textContent = stats.myScore;
+function updateMetrics(pledges) {
+    // Total Impact
+    elements.totalImpact.textContent = pledges.length.toLocaleString();
 
-    // Leaderboard
-    if (stats.topDepts.length > 0) {
-        elements.deptLeaderboard.innerHTML = stats.topDepts.map(dept => `
+    // Volunteers (Count where volunteer == "Yes")
+    const volCount = pledges.filter(p => p.volunteer === 'Yes').length;
+    elements.volunteerCount.textContent = volCount.toLocaleString();
+
+    // My Score
+    const currentUser = firebase.auth().currentUser;
+    if (currentUser) {
+        const myPledges = pledges.filter(p => p.userId === currentUser.uid);
+        const myTotal = myPledges.reduce((sum, p) => sum + (parseInt(p.score) || 0), 0);
+        elements.myScore.textContent = myTotal;
+    }
+}
+
+/**
+ * Update Leaderboard (Group by Dept)
+ */
+function updateLeaderboard(pledges) {
+    const deptScores = {};
+
+    // Initialize
+    DEPARTMENTS.forEach(d => deptScores[d] = 0);
+
+    // Sum scores
+    pledges.forEach(p => {
+        const dept = p.department || 'Other';
+        const score = parseInt(p.score) || 0;
+        if (deptScores[dept] !== undefined) {
+            deptScores[dept] += score;
+        } else {
+            deptScores['Other'] += score;
+        }
+    });
+
+    // Sort & Rank
+    const sortedDepts = Object.entries(deptScores)
+        .map(([name, score]) => ({ name, score }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5); // Top 5
+
+    // Render
+    if (sortedDepts.length > 0) {
+        elements.deptLeaderboard.innerHTML = sortedDepts.map((dept, index) => `
             <tr>
-                <td class="font-medium text-muted">#${dept.rank}</td>
+                <td class="font-medium text-muted">#${index + 1}</td>
                 <td>${escapeHtml(dept.name)}</td>
                 <td class="text-right font-mono">${dept.score.toLocaleString()}</td>
             </tr>
@@ -127,24 +167,48 @@ function updateUI(stats) {
     } else {
         elements.deptLeaderboard.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No data available</td></tr>';
     }
+}
 
-    // Recent Activity
-    if (stats.recentPledges.length > 0) {
-        elements.pledgeList.innerHTML = stats.recentPledges.map(pledge => `
-            <div class="flex items-center gap-3 p-2 hover:bg-muted/10 rounded-md transition-colors">
+/**
+ * Update Recent Activity Feed
+ */
+function updateFeed(recentPledges) {
+    if (recentPledges.length > 0) {
+        elements.pledgeList.innerHTML = recentPledges.map(p => {
+            // Calculate time ago (simple approximation)
+            let timeAgo = 'Just now';
+            if (p.timestamp) {
+                const diff = Date.now() - p.timestamp.toDate().getTime();
+                const mins = Math.floor(diff / 60000);
+                if (mins > 60) timeAgo = `${Math.floor(mins / 60)} hrs ago`;
+                else if (mins > 0) timeAgo = `${mins} mins ago`;
+            }
+
+            // Initials
+            const name = p.fullName || 'Anonymous';
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+            return `
+            <div class="flex items-center gap-3 p-2 hover:bg-muted/10 rounded-md transition-colors animate-slideUp">
                 <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary font-bold text-sm">
-                    ${pledge.avatar}
+                    ${initials}
                 </div>
                 <div class="flex-1">
-                    <div class="text-sm font-medium">${escapeHtml(pledge.name)}</div>
-                    <div class="text-xs text-muted">${escapeHtml(pledge.action)}</div>
+                    <div class="text-sm font-medium">${escapeHtml(name)}</div>
+                    <div class="text-xs text-muted">${escapeHtml(p.department)} • Score: ${p.score}</div>
                 </div>
-                <div class="text-xs text-muted">${pledge.time}</div>
+                <div class="text-xs text-muted">${timeAgo}</div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     } else {
         elements.pledgeList.innerHTML = '<div class="text-center text-muted py-4">No recent activity</div>';
     }
+}
+
+
+function updateUI(stats) {
+    // Deprecated - functions split above
 }
 
 /**

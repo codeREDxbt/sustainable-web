@@ -60,8 +60,18 @@ function setupAuthPage() {
 }
 
 // --- FLASHCARD QUIZ LOGIC ---
+// --- FLASHCARD QUIZ LOGIC ---
+let userDepartment = "";
+let userFullName = "";
+
 function loadQuestion(index) {
     // ... existing loadQuestion code ...
+    if (index === 0 && !userDepartment) {
+        document.getElementById('dept-selection').style.display = 'flex';
+        setupDeptSelection();
+        return; // Wait for selection
+    }
+
     const q = QUIZ_DATA[index];
     const cardInner = document.getElementById('card-inner');
 
@@ -117,6 +127,27 @@ function loadQuestion(index) {
     };
 }
 
+function setupDeptSelection() {
+    const select = document.getElementById('departmentSelect');
+    const btn = document.getElementById('startQuizBtn');
+
+    select.addEventListener('change', () => {
+        if (select.value) btn.disabled = false;
+    });
+
+    btn.onclick = () => {
+        userDepartment = select.value;
+        document.getElementById('dept-selection').style.display = 'none';
+
+        // Fetch user name if available (from auth.js)
+        if (window.firebase && window.firebase.auth && window.firebase.auth().currentUser) {
+            userFullName = window.firebase.auth().currentUser.displayName || "";
+        }
+
+        loadQuestion(0);
+    };
+}
+
 function handleAnswer(selectedIndex, qIndex, btn) {
     if (isLocked) return;
     isLocked = true;
@@ -168,56 +199,40 @@ function showToast(msg, className) {
 
 function finishQuiz() {
     const total = QUIZ_DATA.length * 5;
+
+    // FIRESTORE SUBMISSION
+    const user = window.firebase.auth().currentUser;
     const newData = {
+        userId: user ? user.uid : 'anon',
         roll: currentUserRoll,
+        fullName: userFullName || user.displayName || currentUserRoll,
+        department: userDepartment || "General",
         score: currentScore,
-        total: total,
-        dept: "Flashcard",
+        totalQuizScore: total,
         pledge: `Final Score: ${currentScore}`,
-        volunteer: "Yes",
-        timestamp: new Date().toISOString()
+        volunteer: "Yes", // Defaulting for now as per previous logic
+        timestamp: window.firebase.firestore.FieldValue.serverTimestamp() // Server Time
     };
 
-    // COMPAT SDK: window.rtdb.ref().push()
-    if (window.rtdb) {
-        window.rtdb.ref('submissions').push(newData).then(() => {
+    if (window.db) { // Firestore
+        window.db.collection('pledges').add(newData).then(() => {
             alert(`Quiz Finished! Final Score: ${currentScore}`);
             window.location.href = 'dashboard.html';
         }).catch(err => {
             console.error(err);
             alert('Error saving score: ' + err.message);
+            window.location.href = 'dashboard.html';
         });
     } else {
-        console.error('Firebase RTDB not initialized');
+        console.error('Firestore not initialized');
         alert('Database error. Score not saved.');
         window.location.href = 'dashboard.html';
     }
 }
 
-// --- DASHBOARD LOGIC (Minimal) ---
+// --- DASHBOARD LOGIC (Deprecated here, moved to dashboard.js) ---
 function setupLiveDashboard() {
-    if (!window.rtdb) return;
-
-    // COMPAT SDK
-    window.rtdb.ref('submissions').on('value', (snap) => {
-        const data = snap.val() ? Object.values(snap.val()) : [];
-        const totalCount = document.getElementById('totalCount');
-        if (totalCount) totalCount.textContent = data.length;
-
-        if (data.length) {
-            const sum = data.reduce((a, b) => a + parseInt(b.score || 0), 0);
-            const avgScore = document.getElementById('avgScore');
-            if (avgScore) avgScore.textContent = Math.round(sum / data.length);
-        }
-
-        const list = document.getElementById('pledgeList');
-        if (list && data.length) {
-            list.innerHTML = data.slice().reverse().map(d => `
-                <div style="padding:10px; border-bottom:1px solid #333; color:#ccc;">
-                    <span style="color:#00ff9d">${escapeHtml(d.roll)}</span>: ${escapeHtml(d.pledge)}
-                </div>`).join('');
-        }
-    });
+    // Moved to dashboard.js
 }
 
 // Use auth.js or firebase-init.js for logout now

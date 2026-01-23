@@ -43,6 +43,28 @@
                 </div>
             </div>
 
+            <!-- Department Selection Overlay -->
+            <div id="dept-selection"
+                style="position: absolute; inset: 0; background: rgba(10,10,12,0.95); z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                <h2 style="color: white; margin-bottom: 2rem;">Select Your Department</h2>
+                <select id="departmentSelect" class="glow-btn"
+                    style="width: 300px; text-align: center; margin-bottom: 2rem; background: var(--glass-bg); color: white;">
+                    <option value="" disabled selected>Choose Department...</option>
+                    <option value="Computer Science">Computer Science (SOET)</option>
+                    <option value="Law">Law (SOL)</option>
+                    <option value="Management">Management (SOM)</option>
+                    <option value="Engineering">Engineering (Mech/Civil/Electronics)</option>
+                    <option value="Medical">Medical / Allied Health</option>
+                    <option value="Fashion">Fashion & Design</option>
+                    <option value="Journalism">Journalism & Mass Comm</option>
+                    <option value="Basic Sciences">Basic Sciences</option>
+                    <option value="Architecture">Architecture</option>
+                    <option value="Education">Education</option>
+                    <option value="Other">Other</option>
+                </select>
+                <button id="startQuizBtn" class="glow-btn" disabled>Start Quiz</button>
+            </div>
+
             <div class="flashcard-container" style="flex: 1;">
                 <div class="flashcard-inner" id="card-inner">
 

@@ -171,6 +171,12 @@
                     <div class="card__content">
                         <form id="signupForm" class="form" novalidate>
                             <div class="field">
+                                <label for="signupName" class="label">Full Name</label>
+                                <input type="text" id="signupName" class="input" placeholder="e.g. Rahul Sharma"
+                                    autocomplete="name" minlength="2" required>
+                            </div>
+
+                            <div class="field">
                                 <label for="signupEmail" class="label">Email Address</label>
                                 <input type="email" id="signupEmail" class="input" placeholder="name@krmu.edu.in"
                                     autocomplete="email" required>
@@ -270,6 +276,7 @@
             loginEmail: document.getElementById('loginEmail'),
             loginPass: document.getElementById('loginPassword'),
             signupEmail: document.getElementById('signupEmail'),
+            signupName: document.getElementById('signupName'),
             signupPass: document.getElementById('signupPassword'),
             signupConfirm: document.getElementById('signupConfirmPassword'),
             resetEmail: document.getElementById('resetEmail')
@@ -337,6 +344,11 @@
 
             errors.signup.textContent = '';
 
+            if (inputs.signupName.value.length < 2) {
+                errors.signup.textContent = 'Please enter a valid full name.';
+                return;
+            }
+
             if (inputs.signupPass.value !== inputs.signupConfirm.value) {
                 errors.signup.textContent = 'Passwords do not match.';
                 return;
@@ -349,7 +361,7 @@
 
             setLoading(btn, true);
 
-            const result = await auth.signUp(inputs.signupEmail.value, inputs.signupPass.value);
+            const result = await auth.signUp(inputs.signupEmail.value, inputs.signupPass.value, inputs.signupName.value);
 
             if (result.success) {
                 window.location.href = 'form.html'; // Redirect to onboarding/form

@@ -12,6 +12,24 @@ const ENV_KEYS = [
     'NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID'
 ];
 
+// MANUAL .ENV LOADING (For local dev without dotenv)
+const envPath = path.join(__dirname, '../.env');
+if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf-8');
+    envContent.split('\n').forEach(line => {
+        const match = line.match(/^([^=]+)=(.*)$/);
+        if (match) {
+            const key = match[1].trim();
+            const value = match[2].trim();
+            if (!process.env[key]) {
+                process.env[key] = value;
+            }
+        }
+    });
+}
+
+// Generate config content
+
 // Generate config content
 const config = ENV_KEYS.reduce((acc, key) => {
     acc[key] = process.env[key] || '';
