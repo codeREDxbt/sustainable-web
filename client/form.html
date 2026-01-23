@@ -7,28 +7,7 @@
     <title>Quiz - KRMU Green</title>
     <link rel="stylesheet" href="styles.css">
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCcrmSuKbwTsUOigbZu_maCQmvf4HQ8ia4",
-            authDomain: "krmu-impact-bf09e.firebaseapp.com",
-            projectId: "krmu-impact-bf09e",
-            storageBucket: "krmu-impact-bf09e.firebasestorage.app",
-            messagingSenderId: "676855708371",
-            appId: "1:676855708371:web:6e5ca271427a61312df226",
-            measurementId: "G-2ZHP3D9F8F",
-            databaseURL: "https://krmu-impact-bf09e-default-rtdb.firebaseio.com"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        window.db = getDatabase(app);
-        window.dbRef = ref;
-        window.dbPush = push;
-        window.dbOnValue = onValue;
-        window.dispatchEvent(new Event('firebase-ready'));
-    </script>
+    <!-- Firebase Config handled by firebase-init.js at bottom -->
 </head>
 
 <body>

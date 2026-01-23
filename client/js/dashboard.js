@@ -31,7 +31,7 @@ async function initDashboard() {
         // Auth success: Show content
         document.body.classList.remove('auth-loading');
 
-        elements.userName.textContent = user.name || 'Student';
+        elements.userName.textContent = user.displayName || user.email.split('@')[0] || 'Student';
 
         // 2. Fetch Dashboard Stats
         await fetchStats();
@@ -43,18 +43,35 @@ async function initDashboard() {
 }
 
 /**
- * Fetch Current User
+ * Fetch Current User (Firebase Client-Side)
  */
-async function fetchUser() {
-    try {
-        const response = await fetch('/auth/me');
-        if (!response.ok) throw new Error('Unauthorized');
+function fetchUser() {
+    return new Promise((resolve) => {
+        // Wait for firebase SDK to load if needed
+        const checkFirebase = setInterval(() => {
+            if (window.authDB) { // window.authDB set in firebase-init.js
+                clearInterval(checkFirebase);
 
-        const data = await response.json();
-        return data.success ? data.user : null;
-    } catch (err) {
-        return null; // Not logged in
-    }
+                // Check auth state
+                const unsubscribe = window.authDB.onAuthStateChanged(user => {
+                    unsubscribe(); // Unsubscribe immediately, we just want current state
+                    resolve(user);
+                });
+            } else if (window.firebase && window.firebase.auth) {
+                clearInterval(checkFirebase);
+                const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+                    unsubscribe();
+                    resolve(user);
+                });
+            }
+        }, 100);
+
+        // Timeout fallback
+        setTimeout(() => {
+            clearInterval(checkFirebase);
+            resolve(null);
+        }, 3000);
+    });
 }
 
 /**
@@ -136,7 +153,11 @@ function updateUI(stats) {
 if (elements.logoutBtn) {
     elements.logoutBtn.addEventListener('click', async () => {
         try {
-            await fetch('/auth/logout', { method: 'POST' });
+            if (window.authDB) {
+                await window.authDB.signOut();
+            } else if (window.firebase && window.firebase.auth) {
+                await firebase.auth().signOut();
+            }
             window.location.href = 'index.html';
         } catch (error) {
             console.error('Logout failed', error);
