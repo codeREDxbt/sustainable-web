@@ -17,6 +17,38 @@ const elements = {
     logoutBtn: document.getElementById('logoutBtn')
 };
 
+// Expose Volunteer Handler
+window.handleVolunteer = async function () {
+    const btn = document.getElementById('volunteerBtn');
+    if (btn && btn.disabled) return;
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        showToast('Please log in first', 'error');
+        return;
+    }
+
+    try {
+        await window.db.collection('pledges').add({
+            userId: user.uid,
+            fullName: user.displayName || user.email.split('@')[0],
+            volunteer: 'Yes',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showToast('Thanks for volunteering!', 'success');
+
+        // Disable button immediately
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = `<span class="text-xl">✅</span><span class="text-sm font-medium">Volunteered</span>`;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    } catch (error) {
+        console.error('Volunteer error:', error);
+        showToast('Error saving: ' + error.message, 'error');
+    }
+};
+
 /**
  * Initialize Dashboard
  */
@@ -34,7 +66,10 @@ async function initDashboard() {
 
         elements.userName.textContent = user.displayName || user.email.split('@')[0] || 'Student';
 
-        // 2. Fetch Dashboard Stats
+        // 2. Check Volunteer Status
+        checkVolunteerStatus(user.uid);
+
+        // 3. Fetch Dashboard Stats
         await fetchStats();
 
     } catch (error) {
@@ -73,6 +108,30 @@ function fetchUser() {
             resolve(null);
         }, 3000);
     });
+}
+
+/**
+ * Check if user already volunteered
+ */
+async function checkVolunteerStatus(userId) {
+    if (!window.db) return;
+    const btn = document.getElementById('volunteerBtn');
+    if (!btn) return;
+
+    try {
+        const snap = await window.db.collection('pledges')
+            .where('userId', '==', userId)
+            .where('volunteer', '==', 'Yes')
+            .get();
+
+        if (!snap.empty) {
+            btn.disabled = true;
+            btn.innerHTML = `<span class="text-xl">✅</span><span class="text-sm font-medium">Volunteered</span>`;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    } catch (e) {
+        console.error("Error checking volunteer status", e);
+    }
 }
 
 const DEPARTMENTS = [

@@ -179,8 +179,7 @@
                     <span class="text-xl">📅</span>
                     <span class="text-sm font-medium">Events</span>
                 </button>
-                <button
-                    onclick="window.db.collection('pledges').add({ userId: firebase.auth().currentUser.uid, volunteer: 'Yes', timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => window.showToast('Thanks for volunteering!', 'success'))"
+                <button id="volunteerBtn" onclick="handleVolunteer()"
                     class="glass-card p-4 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-center h-24">
                     <span class="text-xl">🤝</span>
                     <span class="text-sm font-medium">Volunteer</span>
