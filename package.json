@@ -1,0 +1,17 @@
+{
+    "name": "krmu-green",
+    "version": "1.0.0",
+    "description": "KRMU Green - Student Environmental Initiative Portal",
+    "scripts": {
+        "dev": "netlify dev",
+        "build": "node scripts/generate-config.js"
+    },
+    "dependencies": {
+        "firebase-admin": "^13.6.0",
+        "resend": "^6.8.0",
+        "zod": "^4.3.5"
+    },
+    "devDependencies": {
+        "netlify-cli": "^17.0.0"
+    }
+}

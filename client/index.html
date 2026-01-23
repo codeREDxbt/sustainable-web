@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in to KRMU Green with a magic link - no password required">
+    <meta name="theme-color" content="#0a0a0c">
+    <title>Sign In - KRMU Green</title>
+
+    <!-- Prevent flash of wrong theme -->
+    <script>
+        (function () {
+            const theme = localStorage.getItem('krmu-theme') || 'system';
+            const resolved = theme === 'system'
+                ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+                : theme;
+            document.documentElement.dataset.theme = resolved;
+            document.querySelector('meta[name="theme-color"]')?.setAttribute('content', resolved === 'dark' ? '#0a0a0c' : '#ffffff');
+        })();
+    </script>
+
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/liquid-glass.css">
+
+    <style>
+        .auth-layout__video {
+            opacity: 0;
+            transition: opacity 1s ease-out;
+        }
+
+        .auth-layout__video.loaded {
+            opacity: 1;
+        }
+
+        .auth-layout__bg--static {
+            background: linear-gradient(135deg, hsl(240 10% 8%) 0%, hsl(240 10% 4%) 100%);
+        }
+
+        .success-state {
+            text-align: center;
+        }
+
+        .success-state__icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 71% 45%) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-success 2s ease-in-out infinite;
+        }
+
+        .success-state__icon svg {
+            width: 32px;
+            height: 32px;
+            color: white;
+        }
+
+        @keyframes pulse-success {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+        }
+
+        .auth-switch {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid hsl(var(--border));
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Skip link for accessibility -->
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <!-- Background with video -->
+    <div class="auth-layout__bg auth-layout__bg--static">
+        <video id="bgVideo" class="auth-layout__video" autoplay loop muted playsinline
+            poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1' /%3E"
+            aria-hidden="true">
+            <source src="green-forest-moewalls-com.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="auth-layout__overlay"></div>
+
+    <!-- Header -->
+    <header class="auth-header">
+        <a href="/" class="auth-header__brand">
+            KRMU <span class="auth-header__brand-accent">GREEN</span>
+        </a>
+        <nav class="site-header__nav">
+            <div id="themeToggle"></div>
+            <a href="dashboard.html" class="btn btn--ghost btn--sm">View Stats</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <!-- Main Content -->
+    <main id="main" class="auth-layout">
+        <div class="auth-layout__card">
+            <div class="card glass glass--accent">
+                <div class="glass__shine"></div>
+                <div class="glass__noise" aria-hidden="true"></div>
+
+                <!-- Login Form -->
+                <div id="loginStep" class="step step--active">
+                    <div class="card__header text-center">
+                        <h1 class="card__title">Welcome back</h1>
+                        <p class="card__description">Sign in to your KRMU Green account</p>
+                    </div>
+
+                    <div class="card__content">
+                        <form id="loginForm" class="form" novalidate>
+                            <div class="field">
+                                <label for="loginEmail" class="label">Email Address</label>
+                                <input type="email" id="loginEmail" class="input" placeholder="name@krmu.edu.in"
+                                    autocomplete="email" required>
+                            </div>
+
+                            <div class="field">
+                                <div class="flex justify-between items-center mb-1">
+                                    <label for="loginPassword" class="label mb-0">Password</label>
+                                    <button type="button" id="forgotPasswordLink" class="btn btn--link text-xs">Forgot
+                                        password?</button>
+                                </div>
+                                <input type="password" id="loginPassword" class="input" placeholder="••••••••"
+                                    autocomplete="current-password" required>
+                                <div id="loginError" class="error mt-2" role="alert" aria-live="polite"></div>
+                            </div>
+
+                            <button type="submit" id="loginBtn" class="btn btn--primary btn--full mt-4">
+                                Sign In
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card__footer justify-center border-t border-glass mt-6 pt-4">
+                        <p class="text-sm text-muted">
+                            Don't have an account?
+                            <button type="button" id="showSignupBtn" class="btn btn--link font-medium">Sign up</button>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Sign Up Form -->
+                <div id="signupStep" class="step">
+                    <div class="card__header text-center">
+                        <h1 class="card__title">Create Account</h1>
+                        <p class="card__description">Join the KRMU Green initiative</p>
+                    </div>
+
+                    <div class="card__content">
+                        <form id="signupForm" class="form" novalidate>
+                            <div class="field">
+                                <label for="signupEmail" class="label">Email Address</label>
+                                <input type="email" id="signupEmail" class="input" placeholder="name@krmu.edu.in"
+                                    autocomplete="email" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="signupPassword" class="label">Password</label>
+                                <input type="password" id="signupPassword" class="input" placeholder="Min. 8 characters"
+                                    autocomplete="new-password" minlength="8" required>
+                            </div>
+
+                            <div class="field">
+                                <label for="signupConfirmPassword" class="label">Confirm Password</label>
+                                <input type="password" id="signupConfirmPassword" class="input"
+                                    placeholder="Re-enter password" autocomplete="new-password" minlength="8" required>
+                                <div id="signupError" class="error mt-2" role="alert" aria-live="polite"></div>
+                            </div>
+
+                            <button type="submit" id="signupBtn" class="btn btn--primary btn--full mt-4">
+                                Create Account
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card__footer justify-center border-t border-glass mt-6 pt-4">
+                        <p class="text-sm text-muted">
+                            Already have an account?
+                            <button type="button" id="showLoginBtn" class="btn btn--link font-medium">Sign in</button>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Forgot Password Step -->
+                <div id="forgotPasswordStep" class="step">
+                    <div class="card__header text-center">
+                        <h1 class="card__title">Reset Password</h1>
+                        <p class="card__description">Enter your email to receive reset instructions</p>
+                    </div>
+
+                    <div class="card__content">
+                        <form id="forgotPasswordForm" class="form" novalidate>
+                            <div class="field">
+                                <label for="resetEmail" class="label">Email Address</label>
+                                <input type="email" id="resetEmail" class="input" placeholder="name@krmu.edu.in"
+                                    autocomplete="email" required>
+                                <div id="resetError" class="error mt-2" role="alert" aria-live="polite"></div>
+                                <div id="resetSuccess" class="success-text mt-2" role="status" aria-live="polite"></div>
+                            </div>
+
+                            <button type="submit" id="resetBtn" class="btn btn--primary btn--full mt-4">
+                                Send Reset Link
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card__footer justify-center border-t border-glass mt-6 pt-4">
+                        <button type="button" id="backToLoginBtn" class="btn btn--link text-sm">
+                            ← Back to Sign In
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast container -->
+    <div id="toast" class="toast" role="status" aria-live="polite">
+        <div class="toast__title"></div>
+        <div class="toast__message"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="js/env-config.js"></script>
+    <script src="js/firebase-init.js"></script>
+    <script type="module">
+        import { auth } from './js/auth.js';
+
+        // DOM Elements
+        const views = {
+            login: document.getElementById('loginStep'),
+            signup: document.getElementById('signupStep'),
+            forgot: document.getElementById('forgotPasswordStep')
+        };
+
+        const forms = {
+            login: document.getElementById('loginForm'),
+            signup: document.getElementById('signupForm'),
+            forgot: document.getElementById('forgotPasswordForm')
+        };
+
+        const inputs = {
+            loginEmail: document.getElementById('loginEmail'),
+            loginPass: document.getElementById('loginPassword'),
+            signupEmail: document.getElementById('signupEmail'),
+            signupPass: document.getElementById('signupPassword'),
+            signupConfirm: document.getElementById('signupConfirmPassword'),
+            resetEmail: document.getElementById('resetEmail')
+        };
+
+        const errors = {
+            login: document.getElementById('loginError'),
+            signup: document.getElementById('signupError'),
+            reset: document.getElementById('resetError'),
+            resetSuccess: document.getElementById('resetSuccess')
+        };
+
+        // Navigation
+        function showView(viewName) {
+            Object.values(views).forEach(el => el.classList.remove('step--active'));
+            views[viewName].classList.add('step--active');
+
+            // Clear errors
+            Object.values(errors).forEach(el => {
+                el.textContent = '';
+                if (el.id === 'resetSuccess') el.textContent = '';
+            });
+        }
+
+        document.getElementById('showSignupBtn').addEventListener('click', () => showView('signup'));
+        document.getElementById('showLoginBtn').addEventListener('click', () => showView('login'));
+        document.getElementById('forgotPasswordLink').addEventListener('click', () => showView('forgot'));
+        document.getElementById('backToLoginBtn').addEventListener('click', () => showView('login'));
+
+        // Loading State Helper
+        function setLoading(btn, isLoading, originalText) {
+            if (isLoading) {
+                btn.disabled = true;
+                btn.textContent = 'Please wait...';
+            } else {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        // Login Handler
+        forms.login.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const originalText = btn.textContent;
+
+            setLoading(btn, true);
+            errors.login.textContent = '';
+
+            const result = await auth.signIn(inputs.loginEmail.value, inputs.loginPass.value);
+
+            if (result.success) {
+                window.location.href = 'dashboard.html';
+            } else {
+                errors.login.textContent = result.message;
+                setLoading(btn, false, originalText);
+            }
+        });
+
+        // Signup Handler
+        forms.signup.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('signupBtn');
+            const originalText = btn.textContent;
+
+            errors.signup.textContent = '';
+
+            if (inputs.signupPass.value !== inputs.signupConfirm.value) {
+                errors.signup.textContent = 'Passwords do not match.';
+                return;
+            }
+
+            if (inputs.signupPass.value.length < 8) {
+                errors.signup.textContent = 'Password must be at least 8 characters.';
+                return;
+            }
+
+            setLoading(btn, true);
+
+            const result = await auth.signUp(inputs.signupEmail.value, inputs.signupPass.value);
+
+            if (result.success) {
+                window.location.href = 'form.html'; // Redirect to onboarding/form
+            } else {
+                errors.signup.textContent = result.message;
+                setLoading(btn, false, originalText);
+            }
+        });
+
+        // Forgot Password Handler
+        forms.forgot.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('resetBtn');
+            const originalText = btn.textContent;
+
+            setLoading(btn, true);
+            errors.reset.textContent = '';
+            errors.resetSuccess.textContent = '';
+
+            const result = await auth.sendPasswordReset(inputs.resetEmail.value);
+
+            if (result.success) {
+                errors.resetSuccess.textContent = 'Password reset email sent! Check your inbox.';
+                inputs.resetEmail.value = '';
+            } else {
+                errors.reset.textContent = result.message;
+            }
+            setLoading(btn, false, originalText);
+        });
+
+        // Auth Check
+        auth.onAuthStateChanged(user => {
+            if (user && !window.location.href.includes('dashboard') && !window.location.href.includes('form')) {
+                window.location.href = 'dashboard.html';
+            }
+        });
+
+        // Video Optimization (kept from original)
+        (function () {
+            const video = document.getElementById('bgVideo');
+            if (!video) return;
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (prefersReducedMotion) {
+                video.remove();
+            } else {
+                video.addEventListener('loadeddata', () => {
+                    video.classList.add('loaded');
+                }, { once: true });
+            }
+        })();
+    </script>
+
+    <!-- Theme system -->
+    <script type="module">
+        import { createThemeToggle } from './js/theme.js';
+        const toggleContainer = document.getElementById('themeToggle');
+        if (toggleContainer) createThemeToggle(toggleContainer);
+    </script>
+
+    <!-- Glass shine effect -->
+    <script type="module" src="js/glass-shine.js"></script>
+</body>
+
+</html>
