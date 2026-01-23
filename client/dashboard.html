@@ -128,36 +128,34 @@
         <!-- Stats Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <!-- Impact Card (Glass) -->
-            <div class="card glass glass--accent p-6 animate-scaleIn animate-delay-100">
-                <div class="glass__shine"></div>
+            <div class="glass-card p-6 animate-scaleIn animate-delay-100">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-medium text-muted">Total Impact</h3>
+                    <h3 class="glass-stat-label">Total Impact</h3>
                     <span class="badge badge--primary">Live</span>
                 </div>
-                <div class="text-4xl font-bold mb-1" id="totalImpact">
+                <div class="glass-stat-value" id="totalImpact">
                     <div class="skeleton skeleton--title w-20"></div>
                 </div>
-                <p class="text-xs text-muted">Students Engaged</p>
+                <p class="text-xs text-muted mt-2">Students Engaged</p>
             </div>
 
             <!-- Volunteers Card -->
-            <div class="card glass p-6 animate-scaleIn animate-delay-200">
-                <div class="glass__shine"></div>
+            <div class="glass-card p-6 animate-scaleIn animate-delay-200">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-medium text-muted">Volunteers</h3>
+                    <h3 class="glass-stat-label">Volunteers</h3>
                 </div>
-                <div class="text-4xl font-bold mb-1" id="volunteerCount">
+                <div class="glass-stat-value" id="volunteerCount">
                     <div class="skeleton skeleton--title w-20"></div>
                 </div>
-                <p class="text-xs text-muted">Committed to Help</p>
+                <p class="text-xs text-muted mt-2">Committed to Help</p>
             </div>
 
             <!-- Avg Score Card -->
-            <div class="card p-6 animate-scaleIn animate-delay-300">
+            <div class="glass-card p-6 animate-scaleIn animate-delay-300">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-medium text-muted">My Contribution</h3>
+                    <h3 class="glass-stat-label">My Contribution</h3>
                 </div>
-                <div class="text-4xl font-bold mb-1" id="myScore">0</div>
+                <div class="glass-stat-value" id="myScore">0</div>
                 <a href="form.html" class="btn btn--link text-xs mt-2">Take New Quiz →</a>
             </div>
         </div>
@@ -167,23 +165,23 @@
             <h2 class="text-lg font-semibold mb-4">Quick Actions</h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <a href="form.html"
-                    class="card glass glass--subtle p-4 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-center h-24">
+                    class="glass-card p-4 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-center h-24">
                     <span class="text-xl">📝</span>
                     <span class="text-sm font-medium">Take Quiz</span>
                 </a>
                 <a href="stats.html"
-                    class="card glass glass--subtle p-4 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-center h-24">
+                    class="glass-card p-4 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-center h-24">
                     <span class="text-xl">📊</span>
                     <span class="text-sm font-medium">View Stats</span>
                 </a>
                 <button onclick="window.showToast('Event calendar coming soon!', 'info')"
-                    class="card p-4 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-center h-24">
+                    class="glass-card p-4 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-center h-24">
                     <span class="text-xl">📅</span>
                     <span class="text-sm font-medium">Events</span>
                 </button>
                 <button
                     onclick="window.db.collection('pledges').add({ userId: firebase.auth().currentUser.uid, volunteer: 'Yes', timestamp: firebase.firestore.FieldValue.serverTimestamp() }).then(() => window.showToast('Thanks for volunteering!', 'success'))"
-                    class="card p-4 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-center h-24">
+                    class="glass-card p-4 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 text-center h-24">
                     <span class="text-xl">🤝</span>
                     <span class="text-sm font-medium">Volunteer</span>
                 </button>
@@ -194,9 +192,10 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-slideUp animate-delay-300">
 
             <!-- Top Departments -->
-            <div class="card">
-                <div class="card__header flex items-center justify-between">
-                    <h3 class="card__title text-lg">🏆 Top Departments</h3>
+            <!-- Top Departments -->
+            <div class="glass-card">
+                <div class="glass-header flex items-center justify-between">
+                    <h3 class="glass-title text-lg">🏆 Top Departments</h3>
                 </div>
                 <div class="card__content p-0">
                     <div class="table-container border-0 rounded-none">
@@ -253,9 +252,9 @@
             </div>
 
             <!-- Recent Activity -->
-            <div class="card">
-                <div class="card__header">
-                    <h3 class="card__title text-lg">Recent Pledges</h3>
+            <div class="glass-card">
+                <div class="glass-header">
+                    <h3 class="glass-title text-lg">Recent Pledges</h3>
                 </div>
                 <div class="card__content">
                     <div id="pledgeList" class="flex flex-col gap-3">

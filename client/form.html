@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz - KRMU Green</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/liquid-glass.css">
     <script src="js/session-guard.js"></script>
 
     <!-- Firebase Config handled by firebase-init.js at bottom -->
@@ -108,8 +109,7 @@
                             <p style="color: #888; margin-bottom: 2rem;">Select your department to begin the challenge.
                             </p>
 
-                            <select id="departmentSelect" class="glow-btn"
-                                style="width: 100%; text-align: left; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); color: white; border-color: rgba(255,255,255,0.2);">
+                            <select id="departmentSelect" class="glass-select">
                                 <option value="" disabled selected>Choose Department...</option>
                                 <option value="Computer Science">Computer Science (SOET)</option>
                                 <option value="Law">Law (SOL)</option>
@@ -124,7 +124,8 @@
                                 <option value="Other">Other</option>
                             </select>
 
-                            <button id="startQuizBtn" class="glow-btn" style="width: 100%;" disabled>Start Quiz</button>
+                            <button id="startQuizBtn" class="btn-glow-primary" style="width: 100%;" disabled>Start
+                                Quiz</button>
                         </div>
                     </div>
 
