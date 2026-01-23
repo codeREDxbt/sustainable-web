@@ -57,16 +57,31 @@
             object-fit: cover;
         }
 
+        /* Video overlay - theme aware */
         .video-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(10, 10, 12, 0.7);
-            /* Lighter overlay for login */
             z-index: -1;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(3px);
+            transition: background 0.5s ease;
+        }
+
+        /* Dark theme overlay */
+        [data-theme="dark"] .video-overlay,
+        :root:not([data-theme]) .video-overlay {
+            background: rgba(10, 10, 12, 0.7);
+        }
+
+        /* Light theme overlay - subtle darkening for readability */
+        [data-theme="light"] .video-overlay {
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.65) 0%,
+                    rgba(240, 250, 245, 0.6) 50%,
+                    rgba(255, 255, 255, 0.7) 100%);
+            backdrop-filter: blur(2px) saturate(1.2);
         }
 
         .auth-layout__bg--static {
@@ -122,15 +137,14 @@
     <!-- Skip link for accessibility -->
     <a href="#main" class="skip-link">Skip to content</a>
 
-    <!-- Background with video -->
-    <div class="auth-layout__bg auth-layout__bg--static">
-        <video id="bgVideo" class="auth-layout__video" autoplay loop muted playsinline
-            poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1' /%3E"
-            aria-hidden="true">
+    <!-- Background Video -->
+    <div class="video-bg-container">
+        <video id="bgVideo" class="back-video" autoplay loop muted playsinline
+            poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1' /%3E">
             <source src="green-forest-moewalls-com.mp4" type="video/mp4">
         </video>
     </div>
-    <div class="auth-layout__overlay"></div>
+    <div class="video-overlay"></div>
 
     <!-- Header -->
     <header class="auth-header">
