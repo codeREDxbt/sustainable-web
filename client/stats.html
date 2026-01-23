@@ -39,11 +39,48 @@
 
         #main {
             transition: opacity 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Video Background */
+        .video-bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -2;
+        }
+
+        .back-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 12, 0.85);
+            z-index: -1;
+            backdrop-filter: blur(3px);
         }
     </style>
 </head>
 
 <body class="auth-loading">
+    <!-- Background Video -->
+    <div class="video-bg-container">
+        <video autoplay loop muted playsinline class="back-video">
+            <source src="green-forest-moewalls-com.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="video-overlay"></div>
     <!-- Skip link -->
     <a href="#main" class="skip-link">Skip to content</a>
 

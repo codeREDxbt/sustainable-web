@@ -40,8 +40,38 @@
             opacity: 1;
         }
 
+        /* Video Background */
+        .video-bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -2;
+        }
+
+        .back-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 12, 0.7);
+            /* Lighter overlay for login */
+            z-index: -1;
+            backdrop-filter: blur(5px);
+        }
+
         .auth-layout__bg--static {
-            background: linear-gradient(135deg, hsl(240 10% 8%) 0%, hsl(240 10% 4%) 100%);
+            display: none;
+            /* Hide static bg */
         }
 
         .success-state {
