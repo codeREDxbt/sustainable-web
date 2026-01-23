@@ -50,18 +50,38 @@
 }
 
 /* Light theme adjustments */
+/* Light theme adjustments (Premium) */
 [data-theme="light"] {
-    --glass-bg: rgba(255, 255, 255, 0.4);
-    --glass-bg-strong: rgba(255, 255, 255, 0.65);
-    --glass-bg-subtle: rgba(255, 255, 255, 0.2);
-    --glass-border-color: rgba(255, 255, 255, 0.6);
+    /* Glass backgrounds - darker for contrast over video */
+    --glass-bg: rgba(255, 255, 255, 0.65);
+    --glass-bg-strong: rgba(255, 255, 255, 0.8);
+    --glass-bg-subtle: rgba(255, 255, 255, 0.5);
+
+    /* Borders - subtle with gradient effect */
+    --glass-border-color: rgba(255, 255, 255, 0.7);
     --glass-border-top: rgba(255, 255, 255, 0.9);
-    --glass-border-bottom: rgba(0, 0, 0, 0.05);
+    --glass-border-bottom: rgba(0, 0, 0, 0.08);
+
+    /* Shadows - softer for light mode */
     --glass-shadow-combined:
-        0 4px 24px -1px rgba(0, 0, 0, 0.05),
-        0 2px 8px -2px rgba(0, 0, 0, 0.04);
-    --glass-highlight: rgba(255, 255, 255, 0.6);
-    --glass-noise-opacity: 0.03;
+        0 4px 24px -1px rgba(0, 0, 0, 0.08),
+        0 8px 32px -4px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+    /* Highlights */
+    --glass-highlight: rgba(255, 255, 255, 0.8);
+    --glass-highlight-strong: rgba(255, 255, 255, 1);
+
+    /* Increased blur for creamier glass */
+    --glass-blur: 20px;
+    --glass-blur-strong: 28px;
+    --glass-blur-subtle: 10px;
+
+    /* Noise - slightly more visible */
+    --glass-noise-opacity: 0.04;
+
+    /* Accent glow - subtle green */
+    --glass-accent-glow: rgba(34, 197, 94, 0.15);
 }
 
 /* ========== Base Glass Container ========== */

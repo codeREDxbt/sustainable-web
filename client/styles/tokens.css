@@ -106,25 +106,45 @@
 }
 
 /* Light theme (optional, currently dark-first) */
+/* Light theme (Premium Liquid Glass) */
 [data-theme="light"] {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --bg-pattern: radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.15), transparent 50%), radial-gradient(circle at 100% 100%, rgba(240, 240, 250, 1), rgba(255, 255, 255, 0) 50%);
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --primary: 142 76% 36%;
-  --primary-foreground: 144 100% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
+  /* Background - slightly off-white for depth */
+  --background: 210 20% 98%;
+  --foreground: 222 47% 11%;
+
+  /* Cards - translucent for glass effect */
+  --card: 0 0% 100% / 0.7;
+  --card-foreground: 222 47% 11%;
+
+  /* Enhanced pattern with subtle green tint - disabled, using video */
+  --bg-pattern: none;
+
+  /* Muted - warmer tones */
+  --muted: 210 20% 96%;
+  --muted-foreground: 215 16% 47%;
+
+  /* Borders - subtle but visible */
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+
+  /* Primary - tasteful green (not neon) */
+  --primary: 142 64% 32%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary */
+  --secondary: 210 20% 96%;
+  --secondary-foreground: 222 47% 11%;
+
+  /* Accent */
+  --accent: 210 20% 96%;
+  --accent-foreground: 222 47% 11%;
+
+  /* Destructive */
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
-  --ring: 142 76% 36%;
+
+  /* Focus ring */
+  --ring: 142 64% 32%;
 }
 
 /* ---------- CSS Reset + Base Styles ---------- */
