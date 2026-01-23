@@ -9,6 +9,7 @@ function escapeHtml(text) {
 }
 
 window.addEventListener('firebase-ready', () => { initApp(); });
+document.addEventListener('DOMContentLoaded', () => { initApp(); });
 
 const QUIZ_DATA = [
     { q: "Agenda 2030 is regarded as the global treaty of the future because the 17 goals ensure that:", options: ["The world is becoming suitable for grandchildren", "Climate change is stopped", "People are living in peace"], ans: 0, exp: "The goals ensure resources are preserved so the world remains suitable for future generations (grandchildren)." },
@@ -65,6 +66,12 @@ function setupDeptSelection() {
     const select = document.getElementById('departmentSelect');
     const btn = document.getElementById('startQuizBtn');
 
+    if (!select || !btn) return;
+
+    // Prevent double initialization
+    if (select.dataset.initialized === 'true') return;
+    select.dataset.initialized = 'true';
+
     // Check initial state (browser refresh might keep value)
     if (select.value) {
         btn.disabled = false;
@@ -88,11 +95,13 @@ function setupDeptSelection() {
         }
 
         // Hide overlay with fade
-        overlay.style.transition = 'opacity 0.5s ease';
-        overlay.style.opacity = '0';
-        setTimeout(() => {
-            overlay.style.display = 'none';
-        }, 500);
+        if (overlay) {
+            overlay.style.transition = 'opacity 0.5s ease';
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 500);
+        }
 
         // Ensure we load Q0 properly
         loadQuestion(0);
