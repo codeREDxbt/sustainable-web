@@ -12,15 +12,9 @@
     // Check local session flag
     const hasSession = localStorage.getItem('krmu_session') === 'true';
 
-    // 1. If logged in and on login page -> Go to Dashboard
-    if (isLoginPage && hasSession) {
-        window.location.replace('dashboard.html');
-    }
-
-    // 2. If not logged in and on protected page -> Go to Login
+    // Only redirect away from protected pages if not logged in
+    // Don't auto-redirect TO dashboard from login page (let Firebase auth handle that)
     if (isProtectedPage && !hasSession) {
-        // Allow a small grace period for Firebase to potentially restore session if flag is missing but cookie exists?
-        // No, strict mode is faster. Firebase will correct us if we are wrong (via auth.js).
         window.location.replace('index.html');
     }
 })();
