@@ -409,7 +409,3 @@ window.auth = {
     getOTPValue,
     clearOTPInput
 };
-
-// ES6 Export
-export const auth = window.auth;
-export { signIn, signUp, sendPasswordReset, onAuthStateChanged };

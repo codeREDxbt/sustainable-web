@@ -301,8 +301,15 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="js/env-config.js"></script>
     <script src="js/firebase-init.js"></script>
-    <script type="module">
-        import { auth } from './js/auth.js';
+    <script src="js/auth.js"></script>
+    <script>
+        // Wait for DOM and auth to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            const auth = window.auth;
+            if (!auth) {
+                console.error('Auth module not loaded');
+                return;
+            }
 
         // DOM Elements
         const views = {
@@ -457,6 +464,7 @@
                 }, { once: true });
             }
         })();
+        }); // End DOMContentLoaded
     </script>
 
     <!-- Theme system -->
