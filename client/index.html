@@ -70,19 +70,19 @@
             transition: background 0.5s ease;
         }
 
-        /* Dark theme overlay */
-        [data-theme="dark"] .video-overlay,
-        :root:not([data-theme]) .video-overlay {
-            background: rgba(10, 10, 12, 0.7);
-        }
-
-        /* Light theme overlay - subtle darkening for readability */
-        [data-theme="light"] .video-overlay {
+        /* Light theme overlay (default) */
+        .video-overlay {
             background: linear-gradient(135deg,
                     rgba(255, 255, 255, 0.65) 0%,
                     rgba(240, 250, 245, 0.6) 50%,
                     rgba(255, 255, 255, 0.7) 100%);
             backdrop-filter: blur(2px) saturate(1.2);
+        }
+
+        /* Dark theme overlay */
+        [data-theme="dark"] .video-overlay {
+            background: rgba(10, 10, 12, 0.7);
+            backdrop-filter: blur(3px);
         }
 
         .auth-layout__bg--static {

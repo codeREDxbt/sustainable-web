@@ -12,7 +12,7 @@ const THEMES = ['light', 'dark', 'system'];
  */
 export function getThemePreference() {
     const stored = localStorage.getItem(THEME_KEY);
-    return THEMES.includes(stored) ? stored : 'system';
+    return THEMES.includes(stored) ? stored : 'light';
 }
 
 /**

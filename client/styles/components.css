@@ -246,25 +246,28 @@
 
 /* Primary button */
 .btn--primary {
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-}
-
-/* Light theme primary button */
-[data-theme="light"] .btn--primary {
     background: linear-gradient(135deg,
             hsl(142 64% 38%) 0%,
             hsl(142 64% 32%) 100%);
+    color: hsl(var(--primary-foreground));
     box-shadow: 0 2px 12px rgba(34, 197, 94, 0.3);
 }
 
-[data-theme="light"] .btn--primary:hover {
+.btn--primary:hover {
     box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
     transform: translateY(-1px);
 }
 
-.btn--primary:hover {
+/* Dark theme primary button */
+[data-theme="dark"] .btn--primary {
+    background-color: hsl(var(--primary));
+    box-shadow: none;
+}
+
+[data-theme="dark"] .btn--primary:hover {
     background-color: hsl(var(--primary) / 0.9);
+    box-shadow: none;
+    transform: none;
 }
 
 .btn--primary:active {
@@ -422,17 +425,18 @@
 }
 
 .badge--primary {
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-}
-
-/* Light theme "Live" badge */
-[data-theme="light"] .badge--primary {
     background: linear-gradient(135deg,
             hsl(142 64% 38%) 0%,
             hsl(142 64% 32%) 100%);
     color: white;
     box-shadow: 0 2px 8px rgba(34, 197, 94, 0.25);
+}
+
+/* Dark theme badge */
+[data-theme="dark"] .badge--primary {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    box-shadow: none;
 }
 
 .badge--destructive {
@@ -975,18 +979,18 @@
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg,
-            hsl(var(--background) / 0.55) 0%,
-            hsl(var(--background) / 0.7) 50%,
-            hsl(var(--background) / 0.6) 100%);
-    z-index: -1;
-}
-
-/* Light theme: lighter overlay for better video visibility */
-[data-theme="light"] .auth-layout__overlay {
-    background: linear-gradient(135deg,
             hsl(var(--background) / 0.45) 0%,
             hsl(var(--background) / 0.55) 50%,
             hsl(var(--background) / 0.5) 100%);
+    z-index: -1;
+}
+
+/* Dark theme: darker overlay */
+[data-theme="dark"] .auth-layout__overlay {
+    background: linear-gradient(135deg,
+            hsl(var(--background) / 0.55) 0%,
+            hsl(var(--background) / 0.7) 50%,
+            hsl(var(--background) / 0.6) 100%);
 }
 
 /* Disable video animation on reduced motion */
@@ -1321,35 +1325,60 @@
     cursor: not-allowed;
 }
 
-/* ========== LIGHT THEME ADDITIONS ========== */
+/* ========== DEFAULT (LIGHT) THEME STYLES ========== */
 
-/* Light theme table container */
-[data-theme="light"] .table-container {
+/* Table container */
+.table-container {
     background: var(--glass-bg-subtle);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
 }
 
-/* Light theme table rows */
-[data-theme="light"] .table tbody tr:nth-child(odd) {
+/* Table rows */
+.table tbody tr:nth-child(odd) {
     background: rgba(255, 255, 255, 0.3);
 }
 
-[data-theme="light"] .table tbody tr:hover {
+.table tbody tr:hover {
     background: rgba(34, 197, 94, 0.08);
 }
 
-/* Light theme table header */
-[data-theme="light"] .table thead th {
+/* Table header */
+.table thead th {
     background: rgba(255, 255, 255, 0.5);
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* Light theme site header glass */
-[data-theme="light"] .site-header {
-    background: var(--glass-bg);
+/* Site header glass */
+.site-header {
+    background: var(--glass-bg-card);
     -webkit-backdrop-filter: blur(20px) saturate(1.3);
     backdrop-filter: blur(20px) saturate(1.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* ========== DARK THEME OVERRIDES ========== */
+
+[data-theme="dark"] .table-container {
+    background: var(--glass-bg-card);
+}
+
+[data-theme="dark"] .table tbody tr:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="dark"] .table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .table thead th {
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .site-header {
+    background: var(--glass-bg-dark);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }

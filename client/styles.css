@@ -1,14 +1,25 @@
  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
+ /* Light Theme (Default) */
  :root {
+     --primary: #16a34a;
+     /* Green */
+     --primary-glow: rgba(22, 163, 74, 0.4);
+     --bg-black: #ffffff;
+     --glass-bg: rgba(255, 255, 255, 0.7);
+     --glass-border: rgba(0, 0, 0, 0.1);
+     --font-head: 'Space Grotesk', sans-serif;
+     --font-body: 'Outfit', sans-serif;
+ }
+
+ /* Dark Theme */
+ [data-theme="dark"] {
      --primary: #00ff9d;
      /* Neon Green */
      --primary-glow: rgba(0, 255, 157, 0.6);
      --bg-black: #000000;
      --glass-bg: rgba(20, 20, 20, 0.7);
      --glass-border: rgba(255, 255, 255, 0.1);
-     --font-head: 'Space Grotesk', sans-serif;
-     --font-body: 'Outfit', sans-serif;
  }
 
  * {
@@ -19,12 +30,16 @@
 
  body {
      min-height: 100vh;
-     color: white;
+     color: hsl(var(--foreground, 240 10% 4%));
      background: var(--bg-black);
      font-family: var(--font-body);
      overflow-x: hidden;
      display: flex;
      flex-direction: column;
+ }
+
+ [data-theme="dark"] body {
+     color: white;
  }
 
  /* --- VIDEO BACKGROUND --- */
@@ -50,9 +65,17 @@
      left: 0;
      width: 100%;
      height: 100%;
+     background: linear-gradient(135deg,
+             rgba(255, 255, 255, 0.7) 0%,
+             rgba(240, 250, 245, 0.65) 50%,
+             rgba(255, 255, 255, 0.75) 100%);
+     backdrop-filter: blur(2px);
+     z-index: -5;
+ }
+
+ [data-theme="dark"] .video-overlay {
      background: rgba(0, 0, 0, 0.65);
      backdrop-filter: blur(4px);
-     z-index: -5;
  }
 
  /* --- ANIMATIONS --- */

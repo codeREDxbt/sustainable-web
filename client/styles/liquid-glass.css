@@ -1,14 +1,36 @@
 /* ============================================
    LIQUID GLASS THEME
-   Premium Dark Glassmorphism for Dashboard & Quiz
+   Premium Glassmorphism for Dashboard & Quiz
    ============================================ */
 
+/* Light Theme Glass Variables (Default) */
 :root {
+    --glass-bg-dark: rgba(255, 255, 255, 0.75);
+    --glass-bg-card: rgba(255, 255, 255, 0.65);
+    --glass-bg-subtle: rgba(255, 255, 255, 0.4);
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --glass-border-color: rgba(0, 0, 0, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    --glass-shadow-combined: 0 8px 32px 0 rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+    --glass-blur: 24px;
+
+    --text-primary: rgba(9, 9, 11, 0.95);
+    --text-secondary: rgba(9, 9, 11, 0.7);
+    --text-muted: rgba(113, 113, 122, 1);
+
+    --primary-green: #16a34a;
+    --primary-green-glow: rgba(22, 163, 74, 0.3);
+}
+
+/* Dark Theme Glass Variables */
+[data-theme="dark"] {
     --glass-bg-dark: rgba(10, 10, 12, 0.75);
     --glass-bg-card: rgba(20, 20, 20, 0.65);
+    --glass-bg-subtle: rgba(20, 20, 20, 0.4);
     --glass-border: rgba(255, 255, 255, 0.08);
-    /* Unified thiner border */
+    --glass-border-color: rgba(255, 255, 255, 0.1);
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    --glass-shadow-combined: 0 8px 32px 0 rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
     --glass-blur: 24px;
 
     --text-primary: rgba(255, 255, 255, 0.95);
