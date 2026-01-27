@@ -27,6 +27,10 @@
   --primary: 142 76% 36%;
   --primary-foreground: 144 100% 98%;
 
+  /* Volunteer (Teal/Cyan Accent) */
+  --volunteer: 174 72% 40%;
+  --volunteer-foreground: 174 100% 98%;
+
   /* Secondary */
   --secondary: 240 3.7% 15.9%;
   --secondary-foreground: 0 0% 98%;

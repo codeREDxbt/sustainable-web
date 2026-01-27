@@ -29,18 +29,23 @@ window.handleVolunteer = async function () {
     }
 
     try {
-        await window.db.collection('pledges').add({
+        const volunteerData = {
             userId: user.uid,
             fullName: user.displayName || user.email.split('@')[0],
+            department: 'Volunteer',
+            score: 0,
             volunteer: 'Yes',
+            type: 'volunteer',
+            status: 'volunteered',
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        };
+        await window.db.collection('pledges').add(volunteerData);
         showToast('Thanks for volunteering!', 'success');
 
-        // Disable button immediately
+        // Disable button immediately with timestamp
         if (btn) {
             btn.disabled = true;
-            btn.innerHTML = `<span class="text-xl">✅</span><span class="text-sm font-medium">Volunteered</span>`;
+            btn.innerHTML = `<span class="text-xl">✅</span><span class="text-sm font-medium">Volunteered</span><span class="text-xs text-muted">Just now</span>`;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
         }
     } catch (error) {
@@ -69,7 +74,10 @@ async function initDashboard() {
         // 2. Check Volunteer Status
         checkVolunteerStatus(user.uid);
 
-        // 3. Fetch Dashboard Stats
+        // 3. Check Quiz Status
+        checkQuizStatus(user.uid);
+
+        // 4. Fetch Dashboard Stats
         await fetchStats();
 
     } catch (error) {
@@ -125,12 +133,85 @@ async function checkVolunteerStatus(userId) {
             .get();
 
         if (!snap.empty) {
+            const volunteerDoc = snap.docs[0].data();
+            let timeAgoText = '';
+            
+            if (volunteerDoc.timestamp) {
+                try {
+                    const date = volunteerDoc.timestamp.toDate();
+                    const diff = Date.now() - date.getTime();
+                    const mins = Math.floor(diff / 60000);
+                    const hours = Math.floor(mins / 60);
+                    const days = Math.floor(hours / 24);
+
+                    if (days > 0) timeAgoText = `${days}d ago`;
+                    else if (hours > 0) timeAgoText = `${hours}h ago`;
+                    else if (mins > 0) timeAgoText = `${mins}m ago`;
+                    else timeAgoText = 'Just now';
+                } catch (e) {
+                    timeAgoText = '';
+                }
+            }
+
             btn.disabled = true;
-            btn.innerHTML = `<span class="text-xl">✅</span><span class="text-sm font-medium">Volunteered</span>`;
+            btn.innerHTML = `<span class="text-xl">✅</span><span class="text-sm font-medium">Volunteered</span>${timeAgoText ? `<span class="text-xs text-muted">${timeAgoText}</span>` : ''}`;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
         }
     } catch (e) {
         console.error("Error checking volunteer status", e);
+    }
+}
+
+/**
+ * Check if user already submitted quiz
+ */
+async function checkQuizStatus(userId) {
+    if (!window.db) return;
+    const btn = document.getElementById('takeQuizBtn');
+    if (!btn) return;
+
+    try {
+        const snap = await window.db.collection('pledges')
+            .where('userId', '==', userId)
+            .where('status', '==', 'submitted')
+            .orderBy('timestamp', 'desc')
+            .limit(1)
+            .get();
+
+        if (!snap.empty) {
+            const quizDoc = snap.docs[0].data();
+            const score = quizDoc.score ?? 0;
+            let timeAgoText = '';
+            
+            if (quizDoc.timestamp) {
+                try {
+                    const date = quizDoc.timestamp.toDate();
+                    const diff = Date.now() - date.getTime();
+                    const mins = Math.floor(diff / 60000);
+                    const hours = Math.floor(mins / 60);
+                    const days = Math.floor(hours / 24);
+
+                    if (days > 0) timeAgoText = `${days}d ago`;
+                    else if (hours > 0) timeAgoText = `${hours}h ago`;
+                    else if (mins > 0) timeAgoText = `${mins}m ago`;
+                    else timeAgoText = 'Just now';
+                } catch (e) {
+                    timeAgoText = '';
+                }
+            }
+
+            // Handle both button and anchor elements
+            if (btn.tagName === 'A') {
+                btn.removeAttribute('href');
+                btn.style.pointerEvents = 'none';
+            } else {
+                btn.disabled = true;
+            }
+            btn.innerHTML = `<span class="text-xl">✅</span><span class="text-sm font-medium">Quiz Done • ${score} pts</span>${timeAgoText ? `<span class="text-xs text-muted">${timeAgoText}</span>` : ''}`;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    } catch (e) {
+        console.error("Error checking quiz status", e);
     }
 }
 
@@ -260,15 +341,24 @@ function updateFeed(recentPledges) {
             const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             const dept = p.department || 'General';
             const score = p.score ?? 0;
+            
+            // Determine entry type and styling
+            const isVolunteer = p.volunteer === 'Yes' || p.type === 'volunteer';
+            const avatarBgClass = isVolunteer ? 'bg-volunteer-10' : 'bg-primary-10';
+            const avatarIcon = isVolunteer ? '🤝' : initials;
+            const avatarTextClass = isVolunteer ? '' : 'text-primary font-bold text-sm';
+            const statusText = isVolunteer 
+                ? 'Volunteered' 
+                : `${escapeHtml(dept)} • Score: ${score}`;
 
             return `
-            <div class="flex items-center gap-3 p-2 hover:bg-muted/10 rounded-md transition-colors animate-slideUp">
-                <div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary font-bold text-sm">
-                    ${initials}
+            <div class="flex items-center gap-3 p-2 hover-bg-muted rounded-md transition-colors animate-slideUp">
+                <div class="flex items-center justify-center w-10 h-10 rounded-full ${avatarBgClass} ${avatarTextClass}">
+                    ${avatarIcon}
                 </div>
                 <div class="flex-1">
                     <div class="text-sm font-medium">${escapeHtml(name)}</div>
-                    <div class="text-xs text-muted">${escapeHtml(dept)} • Score: ${score}</div>
+                    <div class="text-xs text-muted">${statusText}</div>
                 </div>
                 <div class="text-xs text-muted">${timeAgoText}</div>
             </div>

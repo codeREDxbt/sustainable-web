@@ -252,6 +252,7 @@ async function finishQuiz() {
         totalQuizScore: QUIZ_DATA.length * 5,
         pledge: `Final Score: ${currentScore}`,
         status: 'submitted',
+        type: 'quiz', // Distinguish from volunteer entries
         payload: {
             questionsAnswered: QUIZ_DATA.length,
             score: currentScore,
