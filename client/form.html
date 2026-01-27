@@ -5,8 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz - KRMU ECHOSENSE</title>
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/components.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="styles/liquid-glass.css">
+    <script type="module">
+        import { initTheme, createThemeToggle } from './js/theme.js';
+        initTheme();
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('themeToggle');
+            if (toggle) createThemeToggle(toggle);
+        });
+    </script>
     <script src="js/session-guard.js"></script>
 
     <!-- Firebase Config handled by firebase-init.js at bottom -->
@@ -75,6 +85,7 @@
     <nav class="navbar">
         <div class="brand">Sustainable <span class="glow-brand">QUIZ</span></div>
         <div style="display:flex; align-items:center; gap: 20px;">
+            <div id="themeToggle"></div>
             <div class="score-badge">Score: <span id="current-score">0</span></div>
             <span id="userRoll" style="color: var(--primary); font-size: 0.8rem;"></span>
             <button id="logoutBtn" class="glow-btn" style="font-size: 0.7rem;">Logout</button>
@@ -99,14 +110,12 @@
                 <!-- MAIN SCROLL AREA -->
                 <div class="quiz-scroll-area">
                     <!-- Department Selection Overlay (Initially Visible) -->
-                    <div id="dept-selection"
-                        style="position: absolute; inset: 0; background: rgba(15, 15, 15, 0.96); z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                    <div id="dept-selection" class="dept-selection-overlay">
 
                         <div style="text-align: center; max-width: 400px; padding: 2rem;">
-                            <h2
-                                style="color: white; margin-bottom: 0.5rem; font-family: var(--font-head); font-size: 2rem;">
+                            <h2 class="dept-selection-title">
                                 Welcome</h2>
-                            <p style="color: #888; margin-bottom: 2rem;">Select your department to begin the challenge.
+                            <p class="dept-selection-subtitle">Select your department to begin the challenge.
                             </p>
 
                             <select id="departmentSelect" class="glass-select">

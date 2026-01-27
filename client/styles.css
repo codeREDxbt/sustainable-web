@@ -1011,3 +1011,219 @@
  .glow-btn.loading:hover {
      transform: none;
  }
+
+ /* =========================================
+   DEPARTMENT SELECTION OVERLAY
+   ========================================= */
+
+ .dept-selection-overlay {
+     position: absolute;
+     inset: 0;
+     background: rgba(255, 255, 255, 0.96);
+     z-index: 20;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     backdrop-filter: blur(10px);
+ }
+
+ .dept-selection-title {
+     color: hsl(var(--foreground, 240 10% 4%));
+     margin-bottom: 0.5rem;
+     font-family: var(--font-head);
+     font-size: 2rem;
+ }
+
+ .dept-selection-subtitle {
+     color: hsl(var(--muted-foreground, 240 4% 46%));
+     margin-bottom: 2rem;
+ }
+
+ [data-theme="dark"] .dept-selection-overlay {
+     background: rgba(15, 15, 15, 0.96);
+ }
+
+ [data-theme="dark"] .dept-selection-title {
+     color: white;
+ }
+
+ [data-theme="dark"] .dept-selection-subtitle {
+     color: #888;
+ }
+
+ /* =========================================
+   QUIZ LIGHT THEME OVERRIDES
+   ========================================= */
+
+ /* Quiz card - light theme */
+ .quiz-card {
+     background: rgba(255, 255, 255, 0.7);
+     border: 1px solid rgba(0, 0, 0, 0.1);
+     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+ }
+
+ [data-theme="dark"] .quiz-card {
+     background: rgba(20, 20, 20, 0.6);
+     border: 1px solid rgba(255, 255, 255, 0.1);
+     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+ }
+
+ /* Quiz header - light theme */
+ .quiz-header {
+     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+     background: rgba(255, 255, 255, 0.5);
+ }
+
+ [data-theme="dark"] .quiz-header {
+     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+     background: rgba(0, 0, 0, 0.2);
+ }
+
+ .quiz-category {
+     color: hsl(var(--muted-foreground, 240 4% 46%));
+ }
+
+ .quiz-progress {
+     color: hsl(var(--muted-foreground, 240 4% 46%));
+ }
+
+ /* Quiz question - light theme */
+ .quiz-question {
+     color: hsl(var(--foreground, 240 10% 4%));
+ }
+
+ [data-theme="dark"] .quiz-question {
+     color: rgba(255, 255, 255, 0.95);
+ }
+
+ /* Option buttons - light theme */
+ .option-btn {
+     background: rgba(0, 0, 0, 0.03);
+     border: 1px solid rgba(0, 0, 0, 0.1);
+     color: hsl(var(--foreground, 240 10% 4%));
+ }
+
+ .option-btn:hover:not(:disabled) {
+     background: rgba(0, 0, 0, 0.06);
+     border-color: rgba(0, 0, 0, 0.2);
+ }
+
+ .option-btn.selected {
+     background: rgba(22, 163, 74, 0.1);
+     border-color: var(--primary);
+     color: hsl(var(--foreground, 240 10% 4%));
+ }
+
+ [data-theme="dark"] .option-btn {
+     background: rgba(255, 255, 255, 0.03);
+     border: 1px solid rgba(255, 255, 255, 0.08);
+     color: rgba(255, 255, 255, 0.8);
+ }
+
+ [data-theme="dark"] .option-btn:hover:not(:disabled) {
+     background: rgba(255, 255, 255, 0.08);
+     border-color: rgba(255, 255, 255, 0.2);
+ }
+
+ [data-theme="dark"] .option-btn.selected {
+     background: rgba(255, 255, 255, 0.1);
+     color: white;
+ }
+
+ /* Insight panel - light theme */
+ .insight-panel {
+     background: rgba(0, 0, 0, 0.05);
+     border: 1px solid rgba(0, 0, 0, 0.08);
+ }
+
+ .insight-text {
+     color: hsl(var(--foreground, 240 10% 4%));
+ }
+
+ [data-theme="dark"] .insight-panel {
+     background: rgba(0, 0, 0, 0.3);
+     border: 1px solid rgba(255, 255, 255, 0.05);
+ }
+
+ [data-theme="dark"] .insight-text {
+     color: #ccc;
+ }
+
+ /* Quiz footer - light theme */
+ .quiz-footer {
+     border-top: 1px solid rgba(0, 0, 0, 0.08);
+     background: rgba(255, 255, 255, 0.5);
+ }
+
+ [data-theme="dark"] .quiz-footer {
+     border-top: 1px solid rgba(255, 255, 255, 0.08);
+     background: rgba(0, 0, 0, 0.2);
+ }
+
+ /* Glass button - light theme */
+ .btn-glass {
+     border: 1px solid rgba(0, 0, 0, 0.2);
+     color: hsl(var(--foreground, 240 10% 4%));
+ }
+
+ .btn-glass:hover:not(:disabled) {
+     border-color: hsl(var(--foreground, 240 10% 4%));
+     background: rgba(0, 0, 0, 0.05);
+ }
+
+ [data-theme="dark"] .btn-glass {
+     border: 1px solid rgba(255, 255, 255, 0.2);
+     color: rgba(255, 255, 255, 0.7);
+ }
+
+ [data-theme="dark"] .btn-glass:hover:not(:disabled) {
+     border-color: white;
+     color: white;
+     background: rgba(255, 255, 255, 0.05);
+ }
+
+ /* Scrollbar - light theme */
+ .quiz-scroll-area::-webkit-scrollbar-track {
+     background: rgba(0, 0, 0, 0.02);
+ }
+
+ .quiz-scroll-area::-webkit-scrollbar-thumb {
+     background: rgba(0, 0, 0, 0.15);
+ }
+
+ .quiz-scroll-area::-webkit-scrollbar-thumb:hover {
+     background: rgba(0, 0, 0, 0.25);
+ }
+
+ [data-theme="dark"] .quiz-scroll-area::-webkit-scrollbar-track {
+     background: rgba(255, 255, 255, 0.02);
+ }
+
+ [data-theme="dark"] .quiz-scroll-area::-webkit-scrollbar-thumb {
+     background: rgba(255, 255, 255, 0.1);
+ }
+
+ [data-theme="dark"] .quiz-scroll-area::-webkit-scrollbar-thumb:hover {
+     background: rgba(255, 255, 255, 0.2);
+ }
+
+ /* Score badge - light theme */
+ .score-badge {
+     color: hsl(var(--foreground, 240 10% 4%));
+     border-color: rgba(0, 0, 0, 0.15);
+ }
+
+ [data-theme="dark"] .score-badge {
+     color: white;
+     border-color: rgba(255, 255, 255, 0.2);
+ }
+
+ /* Navbar brand - light theme */
+ .brand {
+     color: hsl(var(--foreground, 240 10% 4%));
+ }
+
+ [data-theme="dark"] .brand {
+     color: white;
+ }
