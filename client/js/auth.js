@@ -285,6 +285,83 @@ function hideToast() {
     }
 }
 
+// ========== Firebase Auth Methods ==========
+async function signIn(email, password) {
+    try {
+        if (!email.endsWith('@krmu.edu.in')) {
+            return { success: false, message: 'Please use your @krmu.edu.in email address' };
+        }
+
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+            return { success: false, message: 'Authentication service not available' };
+        }
+
+        await firebase.auth().signInWithEmailAndPassword(email, password);
+        localStorage.setItem('krmu_session', 'true');
+        return { success: true };
+    } catch (error) {
+        console.error('Sign in error:', error);
+        let message = 'Sign in failed. Please try again.';
+        if (error.code === 'auth/user-not-found') message = 'No account found with this email';
+        if (error.code === 'auth/wrong-password') message = 'Incorrect password';
+        if (error.code === 'auth/invalid-email') message = 'Invalid email address';
+        if (error.code === 'auth/too-many-requests') message = 'Too many failed attempts. Try again later';
+        return { success: false, message };
+    }
+}
+
+async function signUp(email, password, displayName) {
+    try {
+        if (!email.endsWith('@krmu.edu.in')) {
+            return { success: false, message: 'Please use your @krmu.edu.in email address' };
+        }
+
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+            return { success: false, message: 'Authentication service not available' };
+        }
+
+        const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        
+        if (result.user && displayName) {
+            await result.user.updateProfile({ displayName });
+        }
+        
+        localStorage.setItem('krmu_session', 'true');
+        return { success: true };
+    } catch (error) {
+        console.error('Sign up error:', error);
+        let message = 'Sign up failed. Please try again.';
+        if (error.code === 'auth/email-already-in-use') message = 'An account with this email already exists';
+        if (error.code === 'auth/invalid-email') message = 'Invalid email address';
+        if (error.code === 'auth/weak-password') message = 'Password should be at least 8 characters';
+        return { success: false, message };
+    }
+}
+
+async function sendPasswordReset(email) {
+    try {
+        if (typeof firebase === 'undefined' || !firebase.auth) {
+            return { success: false, message: 'Authentication service not available' };
+        }
+
+        await firebase.auth().sendPasswordResetEmail(email);
+        return { success: true };
+    } catch (error) {
+        console.error('Password reset error:', error);
+        let message = 'Failed to send reset email. Please try again.';
+        if (error.code === 'auth/user-not-found') message = 'No account found with this email';
+        if (error.code === 'auth/invalid-email') message = 'Invalid email address';
+        return { success: false, message };
+    }
+}
+
+function onAuthStateChanged(callback) {
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+        return firebase.auth().onAuthStateChanged(callback);
+    }
+    return () => {}; // Return empty unsubscribe function
+}
+
 // ========== Export for Global Access ==========
 window.auth = {
     // API
@@ -292,6 +369,12 @@ window.auth = {
     verifyOTP,
     checkAuth,
     logout,
+
+    // Firebase Auth
+    signIn,
+    signUp,
+    sendPasswordReset,
+    onAuthStateChanged,
 
     // UI Helpers
     showError,
