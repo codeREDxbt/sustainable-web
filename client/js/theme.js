@@ -1,5 +1,5 @@
 /* ============================================
-   KRMU Green - Theme Manager
+   KRMU ECHOSENSE - Theme Manager
    Light / Dark / System theme support
    ============================================ */
 

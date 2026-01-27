@@ -1,4 +1,4 @@
-# Netlify Configuration for KRMU Green
+# Netlify Configuration for KRMU ECHOSENSE
 
 [build]
   command = "npm install"

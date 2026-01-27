@@ -1,5 +1,5 @@
 /* ============================================
-   KRMU Green - Dashboard Logic
+   KRMU ECHOSENSE - Dashboard Logic
    Fetch user data & stats
    ============================================ */
 

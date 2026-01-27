@@ -1,5 +1,5 @@
 /* ============================================
-   KRMU Green - Stats Page Logic
+   KRMU ECHOSENSE - Stats Page Logic
    Fetch & Display Platform Statistics
    ============================================ */
 

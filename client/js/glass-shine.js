@@ -1,5 +1,5 @@
 /* ============================================
-   KRMU Green - Glass Shine Effect
+   KRMU ECHOSENSE - Glass Shine Effect
    Subtle parallax shine that follows cursor
    ============================================ */
 

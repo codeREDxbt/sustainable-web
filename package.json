@@ -1,7 +1,7 @@
 {
     "name": "krmu-green",
     "version": "1.0.0",
-    "description": "KRMU Green - Student Environmental Initiative Portal",
+    "description": "KRMU ECHOSENSE - Student Environmental Initiative Portal",
     "scripts": {
         "dev": "netlify dev",
         "build": "node scripts/generate-config.js"

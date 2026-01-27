@@ -170,9 +170,9 @@ exports.handler = async (event, context) => {
 
         // Send email via Resend
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'KRMU Green <noreply@resend.dev>',
+            from: process.env.EMAIL_FROM || 'KRMU ECHOSENSE <noreply@resend.dev>',
             to: email,
-            subject: 'Sign in to KRMU Green',
+            subject: 'Sign in to KRMU ECHOSENSE',
             html: `
 <!DOCTYPE html>
 <html>
@@ -185,7 +185,7 @@ exports.handler = async (event, context) => {
         <tr>
             <td style="background: linear-gradient(135deg, #0a0a0c 0%, #1a1a1f 100%); border-radius: 16px; padding: 40px;">
                 <h1 style="color: #ffffff; font-size: 24px; margin: 0 0 8px 0; font-weight: 600;">
-                    KRMU <span style="color: #22c55e;">GREEN</span>
+                    KRMU <span style="color: #22c55e;">ECHOSENSE</span>
                 </h1>
                 <p style="color: #a1a1aa; margin: 0 0 32px 0; font-size: 14px;">
                     Student Environmental Initiative
@@ -200,7 +200,7 @@ exports.handler = async (event, context) => {
                    style="display: inline-block; background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); 
                           color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; 
                           font-weight: 600; font-size: 14px; margin-bottom: 24px;">
-                    Sign in to KRMU Green
+                    Sign in to KRMU ECHOSENSE
                 </a>
                 <p style="color: #71717a; font-size: 12px; margin: 24px 0 0 0; line-height: 1.5;">
                     If you didn't request this email, you can safely ignore it. 
@@ -211,7 +211,7 @@ exports.handler = async (event, context) => {
         <tr>
             <td style="text-align: center; padding: 24px 0;">
                 <p style="color: #a1a1aa; font-size: 12px; margin: 0;">
-                    © ${new Date().getFullYear()} KRMU Green. All rights reserved.
+                    © ${new Date().getFullYear()} KRMU ECHOSENSE. All rights reserved.
                 </p>
             </td>
         </tr>

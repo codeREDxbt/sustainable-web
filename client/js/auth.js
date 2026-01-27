@@ -1,5 +1,5 @@
 /* ============================================
-   KRMU Green - Auth Module
+   KRMU ECHOSENSE - Auth Module
    OTP Authentication Client (ES6)
    ============================================ */
 

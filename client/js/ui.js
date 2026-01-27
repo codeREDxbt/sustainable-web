@@ -1,5 +1,5 @@
 /* ============================================
-   KRMU Green - UI Utilities
+   KRMU ECHOSENSE - UI Utilities
    Toasts, Spinners, Formatters & Helpers
    ============================================ */
 
