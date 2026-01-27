@@ -285,6 +285,27 @@ function hideToast() {
     }
 }
 
+// ========== Firebase Availability Check ==========
+function waitForFirebase(timeout = 5000) {
+    return new Promise((resolve, reject) => {
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            resolve();
+            return;
+        }
+
+        const startTime = Date.now();
+        const checkInterval = setInterval(() => {
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                clearInterval(checkInterval);
+                resolve();
+            } else if (Date.now() - startTime > timeout) {
+                clearInterval(checkInterval);
+                reject(new Error('Firebase SDK not loaded'));
+            }
+        }, 100);
+    });
+}
+
 // ========== Firebase Auth Methods ==========
 async function signIn(email, password) {
     try {
@@ -292,9 +313,7 @@ async function signIn(email, password) {
             return { success: false, message: 'Please use your @krmu.edu.in email address' };
         }
 
-        if (typeof firebase === 'undefined' || !firebase.auth) {
-            return { success: false, message: 'Authentication service not available' };
-        }
+        await waitForFirebase();
 
         await firebase.auth().signInWithEmailAndPassword(email, password);
         localStorage.setItem('krmu_session', 'true');
@@ -302,6 +321,7 @@ async function signIn(email, password) {
     } catch (error) {
         console.error('Sign in error:', error);
         let message = 'Sign in failed. Please try again.';
+        if (error.message === 'Firebase SDK not loaded') message = 'Authentication service not available. Please refresh the page.';
         if (error.code === 'auth/user-not-found') message = 'No account found with this email';
         if (error.code === 'auth/wrong-password') message = 'Incorrect password';
         if (error.code === 'auth/invalid-email') message = 'Invalid email address';
@@ -316,9 +336,7 @@ async function signUp(email, password, displayName) {
             return { success: false, message: 'Please use your @krmu.edu.in email address' };
         }
 
-        if (typeof firebase === 'undefined' || !firebase.auth) {
-            return { success: false, message: 'Authentication service not available' };
-        }
+        await waitForFirebase();
 
         const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
         
@@ -331,6 +349,7 @@ async function signUp(email, password, displayName) {
     } catch (error) {
         console.error('Sign up error:', error);
         let message = 'Sign up failed. Please try again.';
+        if (error.message === 'Firebase SDK not loaded') message = 'Authentication service not available. Please refresh the page.';
         if (error.code === 'auth/email-already-in-use') message = 'An account with this email already exists';
         if (error.code === 'auth/invalid-email') message = 'Invalid email address';
         if (error.code === 'auth/weak-password') message = 'Password should be at least 8 characters';
@@ -340,15 +359,14 @@ async function signUp(email, password, displayName) {
 
 async function sendPasswordReset(email) {
     try {
-        if (typeof firebase === 'undefined' || !firebase.auth) {
-            return { success: false, message: 'Authentication service not available' };
-        }
+        await waitForFirebase();
 
         await firebase.auth().sendPasswordResetEmail(email);
         return { success: true };
     } catch (error) {
         console.error('Password reset error:', error);
         let message = 'Failed to send reset email. Please try again.';
+        if (error.message === 'Firebase SDK not loaded') message = 'Authentication service not available. Please refresh the page.';
         if (error.code === 'auth/user-not-found') message = 'No account found with this email';
         if (error.code === 'auth/invalid-email') message = 'Invalid email address';
         return { success: false, message };
