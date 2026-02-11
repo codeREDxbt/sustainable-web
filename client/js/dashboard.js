@@ -62,7 +62,9 @@ async function initDashboard() {
         // 1. Fetch User Data (Auth Check)
         const user = await fetchUser();
         if (!user) {
-            window.location.href = 'index.html'; // Redirect if not logged in
+            // Clear stale session flag to prevent redirect loop
+            try { localStorage.removeItem('krmu_session'); } catch (e) {}
+            window.location.replace('index.html');
             return;
         }
 
@@ -91,30 +93,40 @@ async function initDashboard() {
  */
 function fetchUser() {
     return new Promise((resolve) => {
+        let resolved = false;
+
+        function done(user) {
+            if (resolved) return;
+            resolved = true;
+            resolve(user);
+        }
+
         // Wait for firebase SDK to load if needed
         const checkFirebase = setInterval(() => {
+            if (resolved) { clearInterval(checkFirebase); return; }
+
             if (window.authDB) { // window.authDB set in firebase-init.js
                 clearInterval(checkFirebase);
 
-                // Check auth state
+                // Check auth state — onAuthStateChanged always fires at least once
                 const unsubscribe = window.authDB.onAuthStateChanged(user => {
-                    unsubscribe(); // Unsubscribe immediately, we just want current state
-                    resolve(user);
+                    unsubscribe();
+                    done(user);
                 });
             } else if (window.firebase && window.firebase.auth) {
                 clearInterval(checkFirebase);
                 const unsubscribe = firebase.auth().onAuthStateChanged(user => {
                     unsubscribe();
-                    resolve(user);
+                    done(user);
                 });
             }
         }, 100);
 
-        // Timeout fallback
+        // Timeout fallback — 15s for slow iOS Safari (ITP throttles IndexedDB)
         setTimeout(() => {
             clearInterval(checkFirebase);
-            resolve(null);
-        }, 3000);
+            done(null);
+        }, 15000);
     });
 }
 
@@ -388,7 +400,7 @@ if (elements.logoutBtn) {
             } else if (window.firebase && window.firebase.auth) {
                 await firebase.auth().signOut();
             }
-            window.location.href = 'index.html';
+            window.location.replace('index.html');
         } catch (error) {
             console.error('Logout failed', error);
         }

@@ -369,6 +369,9 @@
             }
         }
 
+        // Redirect guard — prevents double navigation (iOS race condition)
+        let isRedirecting = false;
+
         // Login Handler
         forms.login.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -381,7 +384,8 @@
             const result = await auth.signIn(inputs.loginEmail.value, inputs.loginPass.value);
 
             if (result.success) {
-                window.location.href = 'dashboard.html';
+                isRedirecting = true;
+                window.location.replace('dashboard.html');
             } else {
                 errors.login.textContent = result.message;
                 setLoading(btn, false, originalText);
@@ -416,7 +420,8 @@
             const result = await auth.signUp(inputs.signupEmail.value, inputs.signupPass.value, inputs.signupName.value);
 
             if (result.success) {
-                window.location.href = 'form.html'; // Redirect to onboarding/form
+                isRedirecting = true;
+                window.location.replace('form.html'); // Redirect to onboarding/form
             } else {
                 errors.signup.textContent = result.message;
                 setLoading(btn, false, originalText);
@@ -444,10 +449,11 @@
             setLoading(btn, false, originalText);
         });
 
-        // Auth Check
+        // Auth Check — guarded to prevent double navigation on iOS
         auth.onAuthStateChanged(user => {
-            if (user && !window.location.href.includes('dashboard') && !window.location.href.includes('form')) {
-                window.location.href = 'dashboard.html';
+            if (user && !isRedirecting && !window.location.href.includes('dashboard') && !window.location.href.includes('form')) {
+                isRedirecting = true;
+                window.location.replace('dashboard.html');
             }
         });
 

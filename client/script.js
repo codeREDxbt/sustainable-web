@@ -341,9 +341,10 @@ function setupAuthPage() { }
 function setupLiveDashboard() { } // Handled in dashboard.js
 
 window.logout = function () {
+    try { localStorage.removeItem('krmu_session'); } catch (e) {}
     if (window.firebase?.auth) {
-        window.firebase.auth().signOut().then(() => window.location.href = 'index.html');
+        window.firebase.auth().signOut().then(() => window.location.replace('index.html'));
     } else {
-        window.location.href = 'index.html';
+        window.location.replace('index.html');
     }
 };

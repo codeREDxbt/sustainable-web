@@ -28,7 +28,8 @@ async function initStats() {
     try {
         // Check auth first
         if (!authResponse.ok) {
-            window.location.href = 'index.html';
+            try { localStorage.removeItem('krmu_session'); } catch (e) {}
+            window.location.replace('index.html');
             return;
         }
 

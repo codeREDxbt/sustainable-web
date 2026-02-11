@@ -23,6 +23,15 @@ if (typeof firebase !== 'undefined') {
             window.authDB = firebase.auth();
             window.db = firebase.firestore();
             window.rtdb = firebase.database();
+
+            // Set auth persistence — try LOCAL first, fall back to SESSION for iOS in-app browsers
+            window.authDB.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function () {
+                console.warn('LOCAL persistence failed, falling back to SESSION');
+                return window.authDB.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+            }).catch(function (err) {
+                console.warn('Auth persistence setup failed:', err.message);
+            });
+
             console.log('🔥 Firebase initialized');
         } catch (e) {
             console.error('Firebase init error:', e);

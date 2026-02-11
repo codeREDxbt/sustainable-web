@@ -9,8 +9,16 @@
     const isLoginPage = path.endsWith('index.html') || path === '/' || path.endsWith('/');
     const isProtectedPage = path.includes('dashboard.html') || path.includes('form.html') || path.includes('stats.html');
 
-    // Check local session flag
-    const hasSession = localStorage.getItem('krmu_session') === 'true';
+    // Check local session flag — wrapped in try/catch for iOS private browsing / in-app browsers
+    let hasSession = false;
+    try {
+        hasSession = localStorage.getItem('krmu_session') === 'true';
+    } catch (e) {
+        // localStorage unavailable (iOS private browsing, WKWebView in-app browsers)
+        // Fall through — let Firebase auth handle the redirect instead
+        console.warn('localStorage unavailable, skipping session guard');
+        return;
+    }
 
     // Only redirect away from protected pages if not logged in
     // Don't auto-redirect TO dashboard from login page (let Firebase auth handle that)
