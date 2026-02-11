@@ -84,10 +84,11 @@
 
     <nav class="navbar">
         <div class="brand">Sustainable <span class="glow-brand">QUIZ</span></div>
-        <div style="display:flex; align-items:center; gap: 20px;">
+        <div class="nav-actions">
             <div id="themeToggle"></div>
             <div class="score-badge">Score: <span id="current-score">0</span></div>
             <span id="userRoll" style="color: var(--primary); font-size: 0.8rem;"></span>
+            <a href="dashboard.html" class="glow-btn" style="font-size: 0.7rem; text-decoration: none;">Dashboard</a>
             <button id="logoutBtn" class="glow-btn" style="font-size: 0.7rem;">Logout</button>
         </div>
     </nav>
@@ -165,7 +166,7 @@
                 <div class="quiz-footer">
                     <button id="viewExplBtn" class="btn-glass" style="display: none;">View Explanation</button>
                     <button id="nextBtn" class="glow-btn"
-                        style="padding: 0.8rem 2rem; min-width: 120px; display: none;">Next</button>
+                        style="padding: 0.8rem 2rem; display: none;">Next</button>
                     <button id="skipBtn" class="btn-glass" style="border: none; color: #666;">Skip</button>
                 </div>
 

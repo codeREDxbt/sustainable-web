@@ -535,8 +535,6 @@
  @media (max-width: 768px) {
      .quiz-card {
          border-radius: 0;
-         height: 100vh;
-         max-height: 100vh;
      }
 
      .quiz-header {
@@ -544,11 +542,11 @@
      }
 
      .quiz-question {
-         font-size: 1.25rem;
+         font-size: 1.15rem;
      }
 
      .quiz-scroll-area {
-         padding: 1.5rem;
+         padding: 1rem;
      }
 
      .option-btn {
@@ -1226,4 +1224,282 @@
 
  [data-theme="dark"] .brand {
      color: white;
+ }
+
+ /* =========================================
+   NAV ACTIONS (quiz page right-side items)
+   ========================================= */
+
+ .nav-actions {
+     display: flex;
+     align-items: center;
+     gap: 20px;
+ }
+
+ /* =========================================
+   NEXT BUTTON MIN-WIDTH (moved from inline)
+   ========================================= */
+
+ #nextBtn {
+     min-width: 120px;
+ }
+
+ /* =========================================
+   POPUP TOAST (answer feedback)
+   ========================================= */
+
+ .popup-toast {
+     position: fixed;
+     bottom: 2rem;
+     left: 50%;
+     transform: translateX(-50%) translateY(100px);
+     z-index: 1002;
+     padding: 0.9rem 1.8rem;
+     border-radius: 12px;
+     font-family: var(--font-head);
+     font-weight: 600;
+     font-size: 0.95rem;
+     color: #fff;
+     pointer-events: none;
+     opacity: 0;
+     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+     max-width: 90vw;
+     text-align: center;
+     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+ }
+
+ .popup-toast.show {
+     opacity: 1;
+     transform: translateX(-50%) translateY(0);
+ }
+
+ .popup-toast.popup-correct {
+     background: linear-gradient(135deg, #16a34a, #22c55e);
+     box-shadow: 0 8px 32px rgba(22, 163, 74, 0.4);
+ }
+
+ .popup-toast.popup-wrong {
+     background: linear-gradient(135deg, #dc2626, #ef4444);
+     box-shadow: 0 8px 32px rgba(220, 38, 38, 0.4);
+ }
+
+ .popup-toast.popup-skip {
+     background: linear-gradient(135deg, #6b7280, #9ca3af);
+     box-shadow: 0 8px 32px rgba(107, 114, 128, 0.4);
+ }
+
+ /* =========================================
+   MOBILE RESPONSIVENESS — 768px
+   ========================================= */
+
+ @media (max-width: 768px) {
+     /* --- Navbar --- */
+     .navbar {
+         padding: 1rem 1.25rem;
+     }
+
+     .brand {
+         font-size: 1.3rem;
+     }
+
+     .glow-brand {
+         font-size: 0.75rem;
+         padding: 3px 7px;
+     }
+
+     .nav-actions {
+         gap: 10px;
+         flex-wrap: wrap;
+         justify-content: flex-end;
+     }
+
+     .score-badge {
+         min-width: auto;
+         padding: 6px 12px;
+         font-size: 0.9rem;
+     }
+
+     /* --- Main Container --- */
+     .main-container {
+         padding: 0.5rem;
+     }
+
+     /* --- Quiz Card --- */
+     .quiz-card {
+         height: calc(100dvh - 70px);
+         max-height: calc(100dvh - 70px);
+     }
+
+     /* --- Quiz Scroll Area --- */
+     .quiz-scroll-area {
+         padding: 1rem;
+         gap: 1.25rem;
+     }
+
+     /* --- Question --- */
+     .quiz-question {
+         font-size: 1.15rem;
+         line-height: 1.45;
+         overflow-wrap: break-word;
+         word-break: break-word;
+         min-width: 0;
+     }
+
+     /* --- Option Buttons --- */
+     .option-btn {
+         min-height: 48px;
+         overflow-wrap: break-word;
+         word-break: break-word;
+         min-width: 0;
+     }
+
+     /* --- Next Button --- */
+     #nextBtn {
+         min-width: 100px;
+     }
+
+     /* --- Department Selection --- */
+     .dept-selection-title {
+         font-size: 1.4rem;
+     }
+
+     .dept-selection-subtitle {
+         font-size: 0.9rem;
+     }
+
+     #dept-selection > div {
+         padding: 1rem !important;
+         max-width: 100% !important;
+     }
+
+     /* --- Success Overlay --- */
+     .success-content {
+         padding: 1.5rem 1rem;
+     }
+
+     .success-icon {
+         width: 60px;
+         height: 60px;
+         margin-bottom: 1rem;
+     }
+
+     .success-icon svg {
+         width: 30px;
+         height: 30px;
+     }
+
+     .success-title {
+         font-size: 1.3rem;
+     }
+
+     .success-subtitle {
+         font-size: 0.9rem;
+         margin-bottom: 1.5rem;
+     }
+
+     .score-value {
+         font-size: 2.5rem;
+     }
+
+     .score-max {
+         font-size: 1rem;
+     }
+
+     .success-score-card {
+         padding: 1rem 1.5rem;
+     }
+
+     /* --- Error Toast --- */
+     .error-toast {
+         max-width: 90vw;
+     }
+
+     .error-toast-content {
+         word-break: break-word;
+     }
+
+     /* --- Loading Overlay --- */
+     .loading-spinner {
+         width: 45px;
+         height: 45px;
+     }
+ }
+
+ /* =========================================
+   MOBILE RESPONSIVENESS — 400px (small phones)
+   ========================================= */
+
+ @media (max-width: 400px) {
+     .navbar {
+         padding: 0.75rem 0.75rem;
+     }
+
+     .brand {
+         font-size: 1.1rem;
+         gap: 6px;
+     }
+
+     .glow-brand {
+         font-size: 0.65rem;
+         padding: 2px 5px;
+     }
+
+     .nav-actions {
+         gap: 6px;
+     }
+
+     .score-badge {
+         padding: 4px 8px;
+         font-size: 0.8rem;
+     }
+
+     #userRoll {
+         display: none;
+     }
+
+     .quiz-header {
+         padding: 0.75rem 1rem;
+     }
+
+     .quiz-scroll-area {
+         padding: 0.75rem;
+         gap: 1rem;
+     }
+
+     .quiz-question {
+         font-size: 1rem;
+     }
+
+     .option-btn {
+         padding: 0.8rem;
+         font-size: 0.9rem;
+     }
+
+     .quiz-footer {
+         padding: 0.75rem 1rem;
+         min-height: 60px;
+         gap: 0.5rem;
+     }
+
+     .dept-selection-title {
+         font-size: 1.2rem;
+     }
+
+     .success-title {
+         font-size: 1.1rem;
+     }
+
+     .score-value {
+         font-size: 2rem;
+     }
+
+     #nextBtn {
+         min-width: auto;
+         padding: 0.6rem 1.2rem;
+     }
+
+     .glow-btn {
+         padding: 8px 14px;
+         font-size: 0.65rem;
+     }
  }
