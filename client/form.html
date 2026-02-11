@@ -85,11 +85,17 @@
     <nav class="navbar">
         <div class="brand">Sustainable <span class="glow-brand">QUIZ</span></div>
         <div class="nav-actions">
-            <div id="themeToggle"></div>
             <div class="score-badge">Score: <span id="current-score">0</span></div>
-            <span id="userRoll" style="color: var(--primary); font-size: 0.8rem;"></span>
-            <a href="dashboard.html" class="glow-btn" style="font-size: 0.7rem; text-decoration: none;">Dashboard</a>
-            <button id="logoutBtn" class="glow-btn" style="font-size: 0.7rem;">Logout</button>
+            <button class="menu-toggle" id="menuToggle" aria-label="Menu" aria-expanded="false">
+                <span class="menu-toggle__bar"></span>
+                <span class="menu-toggle__bar"></span>
+                <span class="menu-toggle__bar"></span>
+            </button>
+        </div>
+        <div class="nav-menu" id="navMenu">
+            <div id="themeToggle"></div>
+            <a href="dashboard.html" class="nav-menu__link">Dashboard</a>
+            <button id="logoutBtn" class="nav-menu__link nav-menu__link--danger">Logout</button>
         </div>
     </nav>
 
@@ -221,6 +227,23 @@
             firebase.auth().signOut().then(() => {
                 window.location.replace('index.html');
             });
+        });
+
+        // Hamburger menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navMenu = document.getElementById('navMenu');
+        menuToggle.addEventListener('click', () => {
+            const open = navMenu.classList.toggle('nav-menu--open');
+            menuToggle.classList.toggle('menu-toggle--open', open);
+            menuToggle.setAttribute('aria-expanded', open);
+        });
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!navMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+                navMenu.classList.remove('nav-menu--open');
+                menuToggle.classList.remove('menu-toggle--open');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }
         });
     </script>
 </body>
