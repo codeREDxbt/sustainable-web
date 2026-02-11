@@ -1295,39 +1295,49 @@
  @media (max-width: 768px) {
      /* --- Navbar --- */
      .navbar {
-         padding: 1rem 1.25rem;
+         padding: 0.6rem 1rem;
      }
 
      .brand {
-         font-size: 1.3rem;
+         font-size: 1.2rem;
      }
 
      .glow-brand {
-         font-size: 0.75rem;
-         padding: 3px 7px;
+         font-size: 0.7rem;
+         padding: 2px 6px;
      }
 
      .nav-actions {
-         gap: 10px;
-         flex-wrap: wrap;
+         gap: 8px;
+         flex-wrap: nowrap;
          justify-content: flex-end;
+         align-items: center;
      }
 
      .score-badge {
          min-width: auto;
+         padding: 5px 10px;
+         font-size: 0.8rem;
+     }
+
+     #userRoll {
+         display: none;
+     }
+
+     .nav-actions .glow-btn {
          padding: 6px 12px;
-         font-size: 0.9rem;
+         font-size: 0.6rem;
      }
 
      /* --- Main Container --- */
      .main-container {
-         padding: 0.5rem;
+         padding: 0.25rem;
      }
 
      /* --- Quiz Card --- */
      .quiz-card {
-         height: calc(100dvh - 70px);
-         max-height: calc(100dvh - 70px);
+         height: calc(100dvh - 56px);
+         max-height: calc(100dvh - 56px);
      }
 
      /* --- Quiz Scroll Area --- */
