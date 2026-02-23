@@ -67,7 +67,7 @@ Click **Deploy** in Netlify dashboard. The site will build and deploy automatica
 krmu-green/
 ├── client/              # Static frontend (served at root)
 │   ├── index.html       # Sign-in page (magic link)
-│   ├── finish-signin.html # Complete sign-in
+│   ├── form.html        # Quiz/onboarding page
 │   ├── dashboard.html   # User dashboard
 │   └── ...
 ├── netlify/
@@ -89,7 +89,7 @@ krmu-green/
 1. User enters roll number on sign-in page
 2. Backend generates Firebase sign-in link
 3. Link is sent via Resend email API
-4. User clicks link → redirected to `/finish-signin.html`
+4. User clicks link → redirected to `/index.html`
 5. Firebase completes authentication
 6. User redirected to dashboard
 

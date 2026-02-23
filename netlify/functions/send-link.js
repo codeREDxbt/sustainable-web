@@ -158,7 +158,7 @@ exports.handler = async (event, context) => {
 
         // Action code settings
         const actionCodeSettings = {
-            url: `${process.env.APP_URL}/finish-signin.html`,
+            url: `${process.env.APP_URL}/index.html`,
             handleCodeInApp: true
         };
 

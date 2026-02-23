@@ -17,8 +17,6 @@
             if (toggle) createThemeToggle(toggle);
         });
     </script>
-    <script src="js/session-guard.js"></script>
-
     <!-- Firebase Config handled by firebase-init.js at bottom -->
 </head>
 
@@ -201,11 +199,28 @@
                 return;
             }
 
+            let nullGraceTimer = null;
+
             firebase.auth().onAuthStateChanged((user) => {
                 if (!user) {
-                    try { localStorage.removeItem('krmu_session'); } catch (e) {}
-                    window.location.replace('index.html');
+                    if (nullGraceTimer) return;
+
+                    nullGraceTimer = setTimeout(() => {
+                        const stableUser = firebase.auth().currentUser;
+                        if (stableUser) {
+                            nullGraceTimer = null;
+                            return;
+                        }
+
+                        try { localStorage.removeItem('krmu_session'); } catch (e) {}
+                        window.location.replace('index.html');
+                    }, 1500);
                     return;
+                }
+
+                if (nullGraceTimer) {
+                    clearTimeout(nullGraceTimer);
+                    nullGraceTimer = null;
                 }
 
                 currentUser = {
@@ -213,7 +228,10 @@
                     rollNumber: user.email.split('@')[0]
                 };
 
-                document.getElementById('userRoll').textContent = currentUser.rollNumber;
+                const userRollEl = document.getElementById('userRoll');
+                if (userRollEl) {
+                    userRollEl.textContent = currentUser.rollNumber;
+                }
 
                 // Trigger quiz initialization after auth check
                 if (window.initQuiz) window.initQuiz(currentUser.rollNumber);

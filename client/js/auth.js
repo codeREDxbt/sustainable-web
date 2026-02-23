@@ -39,7 +39,7 @@ async function checkAuth() {
 
 async function logout() {
     await apiRequest('/auth/logout', {});
-    window.location.href = 'login.html';
+    window.location.href = 'index.html';
 }
 
 // ========== OTP Functions ==========

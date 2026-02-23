@@ -26,8 +26,14 @@ let currentData = {
  */
 async function initStats() {
     try {
-        // Check auth first
-        if (!authResponse.ok) {
+        let hasSession = false;
+        try {
+            hasSession = localStorage.getItem('krmu_session') === 'true';
+        } catch (e) {
+            hasSession = false;
+        }
+
+        if (!hasSession) {
             try { localStorage.removeItem('krmu_session'); } catch (e) {}
             window.location.replace('index.html');
             return;

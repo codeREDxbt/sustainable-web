@@ -94,37 +94,56 @@ async function initDashboard() {
 function fetchUser() {
     return new Promise((resolve) => {
         let resolved = false;
+        let listenerAttached = false;
+        let sdkWaitTimer = null;
+        let authTimeout = null;
 
         function done(user) {
             if (resolved) return;
             resolved = true;
+            if (sdkWaitTimer) clearInterval(sdkWaitTimer);
+            if (authTimeout) clearTimeout(authTimeout);
             resolve(user);
         }
 
+        function attachListener(authInstance) {
+            if (listenerAttached) return;
+            listenerAttached = true;
+            if (sdkWaitTimer) clearInterval(sdkWaitTimer);
+
+            let nullGraceTimer = null;
+
+            const unsubscribe = authInstance.onAuthStateChanged(user => {
+                if (user) {
+                    if (nullGraceTimer) clearTimeout(nullGraceTimer);
+                    unsubscribe();
+                    done(user);
+                    return;
+                }
+
+                if (nullGraceTimer) return;
+
+                nullGraceTimer = setTimeout(() => {
+                    unsubscribe();
+                    const stableUser = authInstance.currentUser || null;
+                    done(stableUser);
+                }, 1500);
+            });
+        }
+
         // Wait for firebase SDK to load if needed
-        const checkFirebase = setInterval(() => {
-            if (resolved) { clearInterval(checkFirebase); return; }
+        sdkWaitTimer = setInterval(() => {
+            if (resolved) return;
 
             if (window.authDB) { // window.authDB set in firebase-init.js
-                clearInterval(checkFirebase);
-
-                // Check auth state — onAuthStateChanged always fires at least once
-                const unsubscribe = window.authDB.onAuthStateChanged(user => {
-                    unsubscribe();
-                    done(user);
-                });
+                attachListener(window.authDB);
             } else if (window.firebase && window.firebase.auth) {
-                clearInterval(checkFirebase);
-                const unsubscribe = firebase.auth().onAuthStateChanged(user => {
-                    unsubscribe();
-                    done(user);
-                });
+                attachListener(firebase.auth());
             }
         }, 100);
 
         // Timeout fallback — 15s for slow iOS Safari (ITP throttles IndexedDB)
-        setTimeout(() => {
-            clearInterval(checkFirebase);
+        authTimeout = setTimeout(() => {
             done(null);
         }, 15000);
     });
