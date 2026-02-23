@@ -382,17 +382,18 @@
                 errors.login.textContent = '';
 
                 // Set flag BEFORE sign-in so onAuthStateChanged can't race ahead
-                // and redirect to dashboard before krmu_session is written.
                 isRedirecting = true;
 
                 const result = await auth.signIn(inputs.loginEmail.value, inputs.loginPass.value);
 
                 if (result.success) {
-                    window.location.replace('dashboard.html');
+                    auth.showToast('Welcome back!', 'Signing you in…', 'success', 2000);
+                    setTimeout(() => window.location.replace('dashboard.html'), 600);
                 } else {
                     // Reset flag so the user can try again
                     isRedirecting = false;
                     errors.login.textContent = result.message;
+                    auth.showToast('Sign in failed', result.message, 'error');
                     setLoading(btn, false, originalText);
                 }
             });
@@ -407,16 +408,19 @@
 
                 if (inputs.signupName.value.length < 2) {
                     errors.signup.textContent = 'Please enter a valid full name.';
+                    auth.showToast('Check your name', 'Full name must be at least 2 characters.', 'warning');
                     return;
                 }
 
                 if (inputs.signupPass.value !== inputs.signupConfirm.value) {
                     errors.signup.textContent = 'Passwords do not match.';
+                    auth.showToast('Passwords don’t match', 'Please make sure both password fields are the same.', 'warning');
                     return;
                 }
 
                 if (inputs.signupPass.value.length < 8) {
                     errors.signup.textContent = 'Password must be at least 8 characters.';
+                    auth.showToast('Password too short', 'Use at least 8 characters for a stronger password.', 'warning');
                     return;
                 }
 
@@ -438,9 +442,10 @@
                     inputs.loginEmail.value = signedUpEmail;
                     inputs.loginPass.focus();
 
-                    auth.showToast('Account created!', 'Enter your password to sign in.', 'success');
+                    auth.showToast('Account created! 🌱', 'Your KRMU EchoSense account is ready. Sign in to continue.', 'success', 6000);
                 } else {
                     errors.signup.textContent = result.message;
+                    auth.showToast('Sign up failed', result.message, 'error');
                     setLoading(btn, false, originalText);
                 }
             });
@@ -459,9 +464,13 @@
 
                 if (result.success) {
                     errors.resetSuccess.textContent = 'Password reset email sent! Check your inbox.';
+                    auth.showToast('Email sent!', `A reset link has been sent to ${inputs.resetEmail.value}`, 'info', 6000);
                     inputs.resetEmail.value = '';
+                    // Switch back to login after a moment
+                    setTimeout(() => showView('login'), 2500);
                 } else {
                     errors.reset.textContent = result.message;
+                    auth.showToast('Reset failed', result.message, 'error');
                 }
                 setLoading(btn, false, originalText);
             });

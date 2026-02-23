@@ -251,39 +251,53 @@ function clearOTPInput(containerId) {
 }
 
 // ========== Toast Notifications ==========
-function showToast(title, message, type = 'success', duration = 4000) {
+const TOAST_ICONS = {
+    success: '✅',
+    error: '❌',
+    warning: '⚠️',
+    info: 'ℹ️',
+};
+
+let _toastHideTimer = null;
+
+function showToast(title, message, type = 'success', duration = 4500) {
     const toast = document.getElementById('toast');
     if (!toast) return;
 
-    const titleEl = toast.querySelector('.toast__title');
-    const messageEl = toast.querySelector('.toast__message');
+    // Clear any running auto-hide timer
+    if (_toastHideTimer) { clearTimeout(_toastHideTimer); _toastHideTimer = null; }
 
-    if (titleEl) titleEl.textContent = title;
-    if (messageEl) messageEl.textContent = message;
+    // Render
+    toast.innerHTML = `
+        <div class="toast__icon">${TOAST_ICONS[type] || '💬'}</div>
+        <div class="toast__body">
+            <div class="toast__title">${title}</div>
+            ${message ? `<div class="toast__message">${message}</div>` : ''}
+        </div>
+        <button class="toast__close" aria-label="Dismiss" onclick="window.auth.hideToast()">✕</button>
+    `;
 
     // Reset classes
-    toast.classList.remove('toast--success', 'toast--error', 'toast--visible');
-
-    // Add type class
+    toast.className = 'toast';
     toast.classList.add(`toast--${type}`);
 
-    // Show toast
-    requestAnimationFrame(() => {
+    // Animate in (double rAF ensures transition fires)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
         toast.classList.add('toast--visible');
-    });
+    }));
 
     // Auto-hide
-    setTimeout(() => {
-        toast.classList.remove('toast--visible');
-    }, duration);
+    _toastHideTimer = setTimeout(() => hideToast(), duration);
 }
 
 function hideToast() {
     const toast = document.getElementById('toast');
     if (toast) {
         toast.classList.remove('toast--visible');
+        if (_toastHideTimer) { clearTimeout(_toastHideTimer); _toastHideTimer = null; }
     }
 }
+
 
 // ========== Firebase Availability Check ==========
 function waitForFirebase(timeout = 5000) {
