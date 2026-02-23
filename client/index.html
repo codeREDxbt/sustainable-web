@@ -381,12 +381,17 @@
                 setLoading(btn, true);
                 errors.login.textContent = '';
 
+                // Set flag BEFORE sign-in so onAuthStateChanged can't race ahead
+                // and redirect to dashboard before krmu_session is written.
+                isRedirecting = true;
+
                 const result = await auth.signIn(inputs.loginEmail.value, inputs.loginPass.value);
 
                 if (result.success) {
-                    isRedirecting = true;
                     window.location.replace('dashboard.html');
                 } else {
+                    // Reset flag so the user can try again
+                    isRedirecting = false;
                     errors.login.textContent = result.message;
                     setLoading(btn, false, originalText);
                 }
@@ -467,6 +472,9 @@
             auth.onAuthStateChanged(user => {
                 if (user && !isRedirecting) {
                     isRedirecting = true;
+                    // Always write session flag here so session-guard.js on
+                    // dashboard.html finds it set regardless of timing.
+                    try { localStorage.setItem('krmu_session', 'true'); } catch (e) { }
                     window.location.replace('dashboard.html');
                 }
             });
