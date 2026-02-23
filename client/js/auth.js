@@ -4,8 +4,8 @@
    ============================================ */
 
 // Automatically detect API URL based on current domain
-const API_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000' 
+const API_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
     : window.location.origin;
 
 // ========== State ==========
@@ -339,12 +339,17 @@ async function signUp(email, password, displayName) {
         await waitForFirebase();
 
         const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
-        
+
         if (result.user && displayName) {
             await result.user.updateProfile({ displayName });
         }
-        
-        localStorage.setItem('krmu_session', 'true');
+
+        // Sign out immediately after account creation.
+        // The user must explicitly sign in — this prevents auth state from
+        // triggering a dashboard redirect while still on the login page.
+        await firebase.auth().signOut();
+        localStorage.removeItem('krmu_session');
+
         return { success: true };
     } catch (error) {
         console.error('Sign up error:', error);
@@ -377,7 +382,7 @@ function onAuthStateChanged(callback) {
     if (typeof firebase !== 'undefined' && firebase.auth) {
         return firebase.auth().onAuthStateChanged(callback);
     }
-    return () => {}; // Return empty unsubscribe function
+    return () => { }; // Return empty unsubscribe function
 }
 
 // ========== Export for Global Access ==========

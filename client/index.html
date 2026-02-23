@@ -304,172 +304,186 @@
     <script src="js/auth.js?v=2"></script>
     <script>
         // Wait for DOM and auth to be ready
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const auth = window.auth;
             if (!auth) {
                 console.error('Auth module not loaded');
                 return;
             }
 
-        // DOM Elements
-        const views = {
-            login: document.getElementById('loginStep'),
-            signup: document.getElementById('signupStep'),
-            forgot: document.getElementById('forgotPasswordStep')
-        };
+            // DOM Elements
+            const views = {
+                login: document.getElementById('loginStep'),
+                signup: document.getElementById('signupStep'),
+                forgot: document.getElementById('forgotPasswordStep')
+            };
 
-        const forms = {
-            login: document.getElementById('loginForm'),
-            signup: document.getElementById('signupForm'),
-            forgot: document.getElementById('forgotPasswordForm')
-        };
+            const forms = {
+                login: document.getElementById('loginForm'),
+                signup: document.getElementById('signupForm'),
+                forgot: document.getElementById('forgotPasswordForm')
+            };
 
-        const inputs = {
-            loginEmail: document.getElementById('loginEmail'),
-            loginPass: document.getElementById('loginPassword'),
-            signupEmail: document.getElementById('signupEmail'),
-            signupName: document.getElementById('signupName'),
-            signupPass: document.getElementById('signupPassword'),
-            signupConfirm: document.getElementById('signupConfirmPassword'),
-            resetEmail: document.getElementById('resetEmail')
-        };
+            const inputs = {
+                loginEmail: document.getElementById('loginEmail'),
+                loginPass: document.getElementById('loginPassword'),
+                signupEmail: document.getElementById('signupEmail'),
+                signupName: document.getElementById('signupName'),
+                signupPass: document.getElementById('signupPassword'),
+                signupConfirm: document.getElementById('signupConfirmPassword'),
+                resetEmail: document.getElementById('resetEmail')
+            };
 
-        const errors = {
-            login: document.getElementById('loginError'),
-            signup: document.getElementById('signupError'),
-            reset: document.getElementById('resetError'),
-            resetSuccess: document.getElementById('resetSuccess')
-        };
+            const errors = {
+                login: document.getElementById('loginError'),
+                signup: document.getElementById('signupError'),
+                reset: document.getElementById('resetError'),
+                resetSuccess: document.getElementById('resetSuccess')
+            };
 
-        // Navigation
-        function showView(viewName) {
-            Object.values(views).forEach(el => el.classList.remove('step--active'));
-            views[viewName].classList.add('step--active');
+            // Navigation
+            function showView(viewName) {
+                Object.values(views).forEach(el => el.classList.remove('step--active'));
+                views[viewName].classList.add('step--active');
 
-            // Clear errors
-            Object.values(errors).forEach(el => {
-                el.textContent = '';
-                if (el.id === 'resetSuccess') el.textContent = '';
+                // Clear errors
+                Object.values(errors).forEach(el => {
+                    el.textContent = '';
+                    if (el.id === 'resetSuccess') el.textContent = '';
+                });
+            }
+
+            document.getElementById('showSignupBtn').addEventListener('click', () => showView('signup'));
+            document.getElementById('showLoginBtn').addEventListener('click', () => showView('login'));
+            document.getElementById('forgotPasswordLink').addEventListener('click', () => showView('forgot'));
+            document.getElementById('backToLoginBtn').addEventListener('click', () => showView('login'));
+
+            // Loading State Helper
+            function setLoading(btn, isLoading, originalText) {
+                if (isLoading) {
+                    btn.disabled = true;
+                    btn.textContent = 'Please wait...';
+                } else {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            }
+
+            // Redirect guard — prevents double navigation (iOS race condition)
+            let isRedirecting = false;
+
+            // Login Handler
+            forms.login.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('loginBtn');
+                const originalText = btn.textContent;
+
+                setLoading(btn, true);
+                errors.login.textContent = '';
+
+                const result = await auth.signIn(inputs.loginEmail.value, inputs.loginPass.value);
+
+                if (result.success) {
+                    isRedirecting = true;
+                    window.location.replace('dashboard.html');
+                } else {
+                    errors.login.textContent = result.message;
+                    setLoading(btn, false, originalText);
+                }
             });
-        }
 
-        document.getElementById('showSignupBtn').addEventListener('click', () => showView('signup'));
-        document.getElementById('showLoginBtn').addEventListener('click', () => showView('login'));
-        document.getElementById('forgotPasswordLink').addEventListener('click', () => showView('forgot'));
-        document.getElementById('backToLoginBtn').addEventListener('click', () => showView('login'));
+            // Signup Handler
+            forms.signup.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('signupBtn');
+                const originalText = btn.textContent;
 
-        // Loading State Helper
-        function setLoading(btn, isLoading, originalText) {
-            if (isLoading) {
-                btn.disabled = true;
-                btn.textContent = 'Please wait...';
-            } else {
-                btn.disabled = false;
-                btn.textContent = originalText;
-            }
-        }
+                errors.signup.textContent = '';
 
-        // Redirect guard — prevents double navigation (iOS race condition)
-        let isRedirecting = false;
+                if (inputs.signupName.value.length < 2) {
+                    errors.signup.textContent = 'Please enter a valid full name.';
+                    return;
+                }
 
-        // Login Handler
-        forms.login.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('loginBtn');
-            const originalText = btn.textContent;
+                if (inputs.signupPass.value !== inputs.signupConfirm.value) {
+                    errors.signup.textContent = 'Passwords do not match.';
+                    return;
+                }
 
-            setLoading(btn, true);
-            errors.login.textContent = '';
+                if (inputs.signupPass.value.length < 8) {
+                    errors.signup.textContent = 'Password must be at least 8 characters.';
+                    return;
+                }
 
-            const result = await auth.signIn(inputs.loginEmail.value, inputs.loginPass.value);
+                setLoading(btn, true);
 
-            if (result.success) {
-                isRedirecting = true;
-                window.location.replace('dashboard.html');
-            } else {
-                errors.login.textContent = result.message;
+                const result = await auth.signUp(inputs.signupEmail.value, inputs.signupPass.value, inputs.signupName.value);
+
+                if (result.success) {
+                    // Account created — user is signed back out in auth.js.
+                    // Pre-fill login and switch to sign-in view.
+                    const signedUpEmail = inputs.signupEmail.value;
+                    inputs.signupEmail.value = '';
+                    inputs.signupPass.value = '';
+                    inputs.signupConfirm.value = '';
+                    inputs.signupName.value = '';
+                    setLoading(btn, false, originalText);
+
+                    showView('login');
+                    inputs.loginEmail.value = signedUpEmail;
+                    inputs.loginPass.focus();
+
+                    auth.showToast('Account created!', 'Enter your password to sign in.', 'success');
+                } else {
+                    errors.signup.textContent = result.message;
+                    setLoading(btn, false, originalText);
+                }
+            });
+
+            // Forgot Password Handler
+            forms.forgot.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('resetBtn');
+                const originalText = btn.textContent;
+
+                setLoading(btn, true);
+                errors.reset.textContent = '';
+                errors.resetSuccess.textContent = '';
+
+                const result = await auth.sendPasswordReset(inputs.resetEmail.value);
+
+                if (result.success) {
+                    errors.resetSuccess.textContent = 'Password reset email sent! Check your inbox.';
+                    inputs.resetEmail.value = '';
+                } else {
+                    errors.reset.textContent = result.message;
+                }
                 setLoading(btn, false, originalText);
-            }
-        });
+            });
 
-        // Signup Handler
-        forms.signup.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('signupBtn');
-            const originalText = btn.textContent;
+            // Auth Check — if user is already signed in when landing on this page,
+            // redirect to dashboard. Signup flow never triggers this because
+            // auth.js signs the user out immediately after account creation.
+            auth.onAuthStateChanged(user => {
+                if (user && !isRedirecting) {
+                    isRedirecting = true;
+                    window.location.replace('dashboard.html');
+                }
+            });
 
-            errors.signup.textContent = '';
-
-            if (inputs.signupName.value.length < 2) {
-                errors.signup.textContent = 'Please enter a valid full name.';
-                return;
-            }
-
-            if (inputs.signupPass.value !== inputs.signupConfirm.value) {
-                errors.signup.textContent = 'Passwords do not match.';
-                return;
-            }
-
-            if (inputs.signupPass.value.length < 8) {
-                errors.signup.textContent = 'Password must be at least 8 characters.';
-                return;
-            }
-
-            setLoading(btn, true);
-
-            const result = await auth.signUp(inputs.signupEmail.value, inputs.signupPass.value, inputs.signupName.value);
-
-            if (result.success) {
-                isRedirecting = true;
-                window.location.replace('form.html'); // Redirect to onboarding/form
-            } else {
-                errors.signup.textContent = result.message;
-                setLoading(btn, false, originalText);
-            }
-        });
-
-        // Forgot Password Handler
-        forms.forgot.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('resetBtn');
-            const originalText = btn.textContent;
-
-            setLoading(btn, true);
-            errors.reset.textContent = '';
-            errors.resetSuccess.textContent = '';
-
-            const result = await auth.sendPasswordReset(inputs.resetEmail.value);
-
-            if (result.success) {
-                errors.resetSuccess.textContent = 'Password reset email sent! Check your inbox.';
-                inputs.resetEmail.value = '';
-            } else {
-                errors.reset.textContent = result.message;
-            }
-            setLoading(btn, false, originalText);
-        });
-
-        // Auth Check — guarded to prevent double navigation on iOS
-        auth.onAuthStateChanged(user => {
-            if (user && !isRedirecting && !window.location.href.includes('dashboard') && !window.location.href.includes('form')) {
-                isRedirecting = true;
-                window.location.replace('dashboard.html');
-            }
-        });
-
-        // Video Optimization (kept from original)
-        (function () {
-            const video = document.getElementById('bgVideo');
-            if (!video) return;
-            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (prefersReducedMotion) {
-                video.remove();
-            } else {
-                video.addEventListener('loadeddata', () => {
-                    video.classList.add('loaded');
-                }, { once: true });
-            }
-        })();
+            // Video Optimization (kept from original)
+            (function () {
+                const video = document.getElementById('bgVideo');
+                if (!video) return;
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                if (prefersReducedMotion) {
+                    video.remove();
+                } else {
+                    video.addEventListener('loadeddata', () => {
+                        video.classList.add('loaded');
+                    }, { once: true });
+                }
+            })();
         }); // End DOMContentLoaded
     </script>
 

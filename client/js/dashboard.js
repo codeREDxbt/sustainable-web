@@ -63,7 +63,7 @@ async function initDashboard() {
         const user = await fetchUser();
         if (!user) {
             // Clear stale session flag to prevent redirect loop
-            try { localStorage.removeItem('krmu_session'); } catch (e) {}
+            try { localStorage.removeItem('krmu_session'); } catch (e) { }
             window.location.replace('index.html');
             return;
         }
@@ -125,9 +125,12 @@ function fetchUser() {
 
                 nullGraceTimer = setTimeout(() => {
                     unsubscribe();
+                    // Re-check currentUser after grace period.
+                    // New accounts may briefly emit null before resolving;
+                    // 4s gives Firebase enough time to confirm the new session.
                     const stableUser = authInstance.currentUser || null;
                     done(stableUser);
-                }, 1500);
+                }, 4000);
             });
         }
 
@@ -166,7 +169,7 @@ async function checkVolunteerStatus(userId) {
         if (!snap.empty) {
             const volunteerDoc = snap.docs[0].data();
             let timeAgoText = '';
-            
+
             if (volunteerDoc.timestamp) {
                 try {
                     const date = volunteerDoc.timestamp.toDate();
@@ -213,7 +216,7 @@ async function checkQuizStatus(userId) {
             const quizDoc = snap.docs[0].data();
             const score = quizDoc.score ?? 0;
             let timeAgoText = '';
-            
+
             if (quizDoc.timestamp) {
                 try {
                     const date = quizDoc.timestamp.toDate();
@@ -372,14 +375,14 @@ function updateFeed(recentPledges) {
             const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
             const dept = p.department || 'General';
             const score = p.score ?? 0;
-            
+
             // Determine entry type and styling
             const isVolunteer = p.volunteer === 'Yes' || p.type === 'volunteer';
             const avatarBgClass = isVolunteer ? 'bg-volunteer-10' : 'bg-primary-10';
             const avatarIcon = isVolunteer ? '🤝' : initials;
             const avatarTextClass = isVolunteer ? '' : 'text-primary font-bold text-sm';
-            const statusText = isVolunteer 
-                ? 'Volunteered' 
+            const statusText = isVolunteer
+                ? 'Volunteered'
                 : `${escapeHtml(dept)} • Score: ${score}`;
 
             return `
